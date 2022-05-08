@@ -7,7 +7,7 @@ client = Client(hdfs_host, root=hdfs_uname, timeout=10)
 
 
 def upload_hdfs(file_path):
-    print(file_path)
+    print("upload_hdfs file_path:{}".format(file_path))
     ret = client.upload('/input', file_path)
 
     print(ret)

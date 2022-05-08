@@ -6,6 +6,7 @@ from threading import Thread
 from IntelligentSystem.settings import BASE_DIR
 from queue import Queue
 import time
+from urllib.parse import quote, unquote
 
 admin.site.site_header = '遥感数据服务平台管理后台'
 admin.site.site_title = '遥感数据服务平台管理后台'
@@ -68,9 +69,9 @@ class ImageAdmin(admin.ModelAdmin):
         super(ImageAdmin, self).save_model(request, obj, form, change)
         print(path)
         static_path = os.path.join(BASE_DIR, "static")
-        img_path = os.path.join(static_path, obj.img_path.url)
+        img_path = unquote(os.path.join(static_path, obj.img_path.url), "utf-8")
         print(dir(obj.img_xml))
-        img_xml = os.path.join(static_path, obj.img_xml.url)
+        img_xml = unquote(os.path.join(static_path, obj.img_xml.url))
         xml_queues.put({"id": obj.id, "xml_path": img_xml})
         if path.find("change") == -1:
             t1 = Thread(target=upload_hdfs, args=(img_path,))
