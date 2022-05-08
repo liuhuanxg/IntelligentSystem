@@ -1,0 +1,175 @@
+<!doctype html>
+{% load static %}
+<html class="fixed">
+	<head>
+		<!-- Basic -->
+		<meta charset="UTF-8">
+
+		<title>
+            {% block title %}
+             遥感数据服务平台
+            {% endblock %}
+        </title>
+
+        {% block style %}
+
+        {% endblock %}
+
+	</head>
+	<body>
+		<section class="body">
+
+			<!-- start: header -->
+			<header class="header">
+				<div class="logo-container">
+					<a href=".." class="logo">
+						<h3 style="color: black">遥感数据服务平台</h3>
+					</a>
+					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
+						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
+					</div>
+				</div>
+
+				<!-- start: search & user box -->
+				<div class="header-right">
+
+					<form action="/site_message" class="search nav-form" method="get">
+						<div class="input-group input-search">
+							<input type="text" class="form-control" name="site_name" id="q" placeholder="搜索站点...">
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+							</span>
+						</div>
+					</form>
+
+					<span class="separator"></span>
+					<span class="separator"></span>
+
+					<div id="userbox" class="userbox">
+						<a href="#" data-toggle="dropdown">
+							<figure class="profile-picture">
+								<img src="/static/{{ request.session.image }}" alt="{{ request.session.username }}" class="img-circle" data-lock-picture="/static/assets/images/!logged-user.jpg" />
+							</figure>
+							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@JSOFT.com">
+								<span class="name">{{ request.session.username }}</span>
+								<span class="role">administrator</span>
+							</div>
+
+							<i class="fa custom-caret"></i>
+						</a>
+						<div class="dropdown-menu">
+							<ul class="list-unstyled">
+								<li class="divider"></li>
+								<li>
+									<a role="menuitem" tabindex="-1" href="/user_info"><i class="fa fa-user"></i>个人中心</a>
+								</li>
+								<li>
+									<a role="menuitem" tabindex="-1" href="#" data-lock-screen="true"><i class="fa fa-lock"></i> Lock Screen</a>
+								</li>
+								<li>
+									<a role="menuitem" tabindex="-1" href="/logout"><i class="fa fa-power-off"></i> 退出</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end: search & user box -->
+			</header>
+			<!-- end: header -->
+
+			<div class="inner-wrapper">
+				<!-- start: sidebar -->
+				<aside id="sidebar-left" class="sidebar-left">
+
+					<div class="sidebar-header">
+						<div class="sidebar-title" style="color: white">遥感数据服务平台
+						</div>
+						<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html" data-fire-event="sidebar-left-toggle">
+							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
+						</div>
+					</div>
+
+					<div class="nano">
+						<div class="nano-content">
+							<nav id="menu" class="nav-main" role="navigation">
+								<ul class="nav nav-main">
+									<li class="nav-active">
+										<a href="/">
+											<i class="fa fa-home" aria-hidden="true"></i>
+											<span>GIS地图展示</span>
+										</a>
+									</li>
+
+                                    <li class="nav">
+										<a href="/image_message">
+											<i class="fa fa-table" aria-hidden="true"></i>
+											<span>全部图片展示</span>
+										</a>
+									</li>
+									<li class="nav">
+										<a href="/site_message">
+											<i class="fa fa-align-left" aria-hidden="true"></i>
+											<span>按地点展示列表</span>
+										</a>
+									</li>
+                                    <li class="nav">
+										<a href="/informations">
+											<i class="fa fa-align-left" aria-hidden="true"></i>
+											<span>信息展示面板</span>
+										</a>
+									</li>
+									<li class="nav-parent">
+										<a>
+											<i class="fa fa-tasks" aria-hidden="true"></i>
+											<span>个人中心</span>
+										</a>
+										<ul class="nav nav-children">
+											<li>
+												<a href="/user_info">
+													 个人信息
+												</a>
+											</li>
+											<li>
+												<a href="/change_userinfo">
+													 完善信息
+												</a>
+											</li>
+                                            <li>
+												<a href="/change_password">
+													 密码修改
+												</a>
+											</li>
+											<li>
+												<a href="/logout">
+													 退出
+												</a>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</nav>
+							<hr class="separator" />
+
+						</div>
+
+					</div>
+
+				</aside>
+				<!-- end: sidebar -->
+
+				<section role="main" class="content-body">
+
+                    {% block content %}
+                    
+                    {% endblock %}
+                     更多信息请联系<a href="/" target="_blank" title="智推图片">admin.qq.com</a>
+				</section>
+			</div>
+		</section>
+
+
+        {% block script %}
+
+        {% endblock %}
+	</body>
+</html>

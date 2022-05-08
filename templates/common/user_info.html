@@ -1,0 +1,104 @@
+{% extends "base/base.html" %}
+{% load box %}
+
+{% block title %}
+遥感数据服务平台| 个人中心
+{% endblock %}
+
+
+
+{% block style %}
+
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+		<link rel="stylesheet" href="/static/assets/vendor/bootstrap/css/bootstrap.css" />
+		<link rel="stylesheet" href="/static/assets/vendor/font-awesome/css/font-awesome.css" />
+		<link rel="stylesheet" href="/static/assets/vendor/magnific-popup/magnific-popup.css" />
+		<link rel="stylesheet" href="/static/assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+		<link rel="stylesheet" href="/static/assets/stylesheets/theme.css" />
+		<link rel="stylesheet" href="/static/assets/stylesheets/skins/default.css" />
+		<link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
+		<script src="/static/assets/vendor/modernizr/modernizr.js"></script>
+    <style>
+        td{color: black;}
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <header class="page-header">
+        <h2>个人中心</h2>
+
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>个人中心</span></li>
+                <li><span>个人信息</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+    <div class="row">
+    <div class="col-md-12">
+    <section class="panel">
+        <header class="panel-heading">
+            <h2 class="panel-title">个人中心</h2>
+
+        </header>
+        <div class="panel-body">
+            <a href="/change_userinfo" class="btn btn-success">完善信息</a>
+            <div class="table-responsive">
+                <table class="table mb-none">
+                    <tbody>
+                        <tr>
+                            <td>用户名：{{ user.username }}</td>
+                        </tr>
+                        <tr>
+                            <td>密码：{{ user.username | set_password}}</td>
+                        </tr>
+                        <tr>
+                            <td>昵称：{{ user.nick_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>性别：{% if user.gender == 0  %}女{% elif user.gender == 1  %}男{% else %}暂无{% endif %}</td>
+                        </tr><tr>
+                            <td>电话：{{ user.phone }}</td>
+                        </tr>
+                        <tr>
+                            <td>邮箱：{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <td>地址：{{ user.address }}</td>
+                        </tr>
+                        <tr>
+                            <td>头像：<img src="/static/{{ user.image.url }}" alt="" width="32px" height="32px"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    </div>
+
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+    <script src="/static/assets/javascripts/theme.js"></script>
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+    <script src="/static/assets/javascripts/theme.init.js"></script>
+{% endblock %}
+

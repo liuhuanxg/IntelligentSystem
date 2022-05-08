@@ -1,0 +1,162 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    遥感数据服务平台 | 图片查询
+{% endblock %}
+
+
+
+{% block style %}
+    <meta charset="UTF-8">
+    <meta name="keywords" content="HTML5 Admin Template" />
+    <meta name="description" content="Porto Admin - Responsive HTML5 Template">
+    <meta name="author" content="okler.net">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/magnific-popup/magnific-popup.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/skins/default.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
+    <script src="/static/assets/vendor/modernizr/modernizr.js"></script>
+    <style>
+    .list li{float: left}
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+<header class="page-header">
+    <h2>图片信息</h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="/">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            <li><span>图片信息</span></li>
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-md-12">
+    <section class="panel">
+    <header class="panel-heading">
+    <h2 class="panel-title">图片信息展示</h2>
+    </header>
+        <div class="panel-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div data-collapsed="0" class="panel">
+                    <div class="panel-body">
+                        <div class="row">
+                            <form action="" method="get">
+                                <div class="col-md-4 form-group">
+                                    <input type="text" placeholder="图片类别" class="form-control" name="type_name" value="{{ type_name }}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <input type="text" placeholder="图片名称" class="form-control" name="image_name" value="{{ image_name }}">
+                                </div>
+                                <div class="col-md-2 form-group">
+                                    <button type="submit" class="form-control btn-primary btn">搜索</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-none">
+                <thead>
+                    <tr>
+                        <th>图片名</th>
+                        <th>图像来源</th>
+                        <th>图像长度</th>
+                        <th>图像宽度</th>
+                        <th>图像高度</th>
+                        <th>创建时间</th>
+                        <th>所属类别</th>
+                        <th>所属站点</th>
+                        <th>图像状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for image in data %}
+                    <tr>
+                        <td><a href="{% url 'home:image_detail' image.id %}" class="btn btn-primary btn-sm">{{ image.img_name }}</a></td>
+                        <td>{{ image.img_source }}</td>
+                        <td>{{ image.img_length }}</td>
+                        <td>{{ image.img_width }}</td>
+                        <td>{{ image.img_height }}</td>
+                        <td>{{ image.add_time }}</td>
+                        <td>{{ image.type }}</td>
+                        <td>{{ image.station }}</td>
+                        <td>
+                        {% if image.img_status %}
+                        <button type="button" class="btn btn-sm btn-success">
+                            正常
+                        </button>
+                        {% else %}
+                            删除
+                        {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </section>
+    </div>
+    <ul class="list">
+       {% if data.has_previous %}
+        <a href="?page={{ data.previous_page_number }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn">&lt;</a>
+        {% endif %}
+        {% for page in page_list %}
+            {% if request.GET.page %}
+                {% if page == request.GET.page|add:0 %}
+                    <a href="?page={{ page }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn-success btn">{{ page }}</a>
+                {% elif  request.GET.page|add:0 > data.number and page == 1%}
+                    <a href="?page={{ page }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn-success btn">{{ page }}</a>
+                {% else %}
+                    <a href="?page={{ page }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn">{{ page }}</a>
+                {% endif %}
+            {% else %}
+                 {% if page == 1 %}
+                    <a href="?page={{ page }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn-success btn">{{ page }}</a>
+                    {% else %}
+                    <a href="?page={{ page }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn">{{ page }}</a>
+                 {% endif %}
+            {% endif %}
+        {% endfor %}
+         {% if data.has_next %}
+            <a href="?page={{ data.next_page_number }}&type_name={{ type_name }}&image_name={{ image_name }}" class="btn-sm btn">&gt;</a>
+         {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+    <script src="/static/assets/javascripts/theme.js"></script>
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+    <script src="/static/assets/javascripts/theme.init.js"></script>
+{% endblock %}
+

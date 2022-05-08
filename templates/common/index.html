@@ -1,0 +1,350 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    遥感数据服务平台|首页
+{% endblock %}
+
+{% block style %}
+    <meta name="keywords" content="HTML5 Admin Template" />
+    <meta name="description" content="JSOFT Admin - Responsive HTML5 Template">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/magnific-popup/magnific-popup.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap-multiselect/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/morris/morris.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/skins/default.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
+    <script src="/static/assets/vendor/modernizr/modernizr.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=u8cfxcjETgPttanqSozYnG6B7lUreLwh"></script>
+    <style type="text/css">
+        .map{
+            width:100%;
+            height:470px;
+            min-width: 1200px;
+            background:#f1f8ed;
+            background-size:100% 848px;
+            margin-top: -10px;
+        }
+
+        .mapDiv{
+            width:100%;
+            min-width:1200px;
+            height:450px;
+        }
+        .baiduMap{
+            width:882px;
+            height:377px;
+            background-color: red;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <header class="page-header">
+        <h2>首页</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>首页</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <div class="row">
+        <div class="col-md-6 col-lg-12 col-xl-6">
+            <div class="row">
+                <div class="col-md-12 col-lg-6 col-xl-6">
+                    <section class="panel panel-featured-left panel-featured-primary">
+                        <div class="panel-body">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col">
+                                    <div class="summary">
+                                        <h4 class="title">目前收录图片信息</h4>
+                                        <div class="info">
+                                            <strong class="amount">{{ bus_number }}&nbsp;辆</strong>
+                                            <span class="text-primary">（{{ type_number }}&nbsp;种类型）</span>
+                                        </div>
+                                    </div>
+                                    <div class="summary-footer">
+                                        <a  href="/" class="text-muted text-uppercase">(查看全部)</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-6">
+                    <section class="panel panel-featured-left panel-featured-secondary">
+                        <div class="panel-body">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col">
+                                    <div class="summary">
+                                        <h4 class="title">收录站点信息</h4>
+                                        <div class="info">
+                                            <strong class="amount">{{ site_number }}&nbsp;个</strong>
+                                        </div>
+                                    </div>
+                                    <div class="summary-footer">
+                                        <a href="/" class="text-muted text-uppercase">(查看全部)</a>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-12 col-xl-6">
+            <section class="panel">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class='map'>
+                            <div class="mapDiv">
+                                <div class="baiduMap" id="map">
+                                </div>
+                            </div>
+                        </div>
+                    <script type="text/javascript">
+                        /* 百度地图生成 */
+                        //创建和初始化地图函数：
+                        function initMap(){
+                            createMap();//创建地图
+                            setMapEvent();//设置地图事件
+                            addMapControl();//向地图添加控件
+                            addMapOverlay();//向地图添加覆盖物
+                        }
+                        function createMap(){
+                            map = new BMap.Map("map");
+                            map.centerAndZoom(new BMap.Point(116.401770,39.942770),11);
+                        }
+                        function setMapEvent(){
+                            map.enableScrollWheelZoom();
+                            map.enableKeyboard();
+                            map.enableDragging();
+                            map.enableDoubleClickZoom()
+                        }
+                        function addClickHandler(target,window){
+                            target.addEventListener("click",function(){
+                                target.openInfoWindow(window);
+                            });
+                        }
+                        function addMapOverlay(){
+                            var markers = [
+                                {content:"北京",title:"",imageOffset: {width:-46,height:-21},position:{lat:39.942770,lng:116.401770}}
+                            ];
+                            for(var index = 0; index < markers.length; index++ ){
+                                var point = new BMap.Point(markers[index].position.lng,markers[index].position.lat);
+                                var marker = new BMap.Marker(point,{icon:new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png",new BMap.Size(20,25),{
+                                        imageOffset: new BMap.Size(markers[index].imageOffset.width,markers[index].imageOffset.height)
+                                    })});
+                                var label = new BMap.Label(markers[index].title,{offset: new BMap.Size(25,5)});
+                                var opts = {
+                                    width: 200,
+                                    title: markers[index].title,
+                                    enableMessage: false
+                                };
+                                var infoWindow = new BMap.InfoWindow(markers[index].content,opts);
+                                marker.setLabel(label);
+                                addClickHandler(marker,infoWindow);
+                                map.addOverlay(marker);
+                            };
+                        }
+                        //向地图添加控件
+                        function addMapControl(){
+                            var scaleControl = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+                            scaleControl.setUnit(BMAP_UNIT_IMPERIAL);
+                            map.addControl(scaleControl);
+                            var navControl = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+                            map.addControl(navControl);
+                            var overviewControl = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:true});
+                            map.addControl(overviewControl);
+                        }
+                        var map;
+                        initMap();
+
+                    </script>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-3 col-lg-6">
+            <section class="panel panel-transparent">
+                <header class="panel-heading">
+                    <h2 class="panel-title">站点浏览记录</h2>
+                </header>
+                <div class="panel-body">
+                    <section class="panel panel-group">
+                        <header class="panel-heading bg-primary">
+                        <div class="widget-profile-info">
+                        <div class="profile-info">
+                            <h4 class="name text-semibold">欢迎：{{ request.session.username }}</h4>
+                            <h5 class="role">猜测您想去的站点：</h5>
+                            <div class="profile-footer">
+                                <a href="{% url 'home:change_userinfo'%}">(编辑个人资料)</a>
+                            </div>
+                        </div>
+                        </div>
+                    </header>
+                        <div id="accordion">
+                        <div class="panel panel-accordion panel-accordion-first">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1One">
+                                    <i class="fa fa-check"></i> 站点搜索历史
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse1One" class="accordion-body collapse in">
+                            <div class="panel-body">
+                                <ul class="widget-todo-list">
+                                    {% for history in site_history_list %}
+                                    <li>
+                                        <div class="checkbox-custom checkbox-default">
+                                            <a href="{% url 'home:site_detail' history.site_id %}">{{ history.site }}</a>
+                                        </div>
+                                        <div class="todo-actions">
+                                            <a class="todo-remove" href="#">
+                                                <i class="fa fa-times" onclick="f('Site',{{ history.id }})"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                        {% empty %}
+                                        暂无浏览记录，<a href="/">查看站点</a>
+                                    {% endfor %}
+                                </ul>
+                                <hr class="solid mt-sm mb-lg">
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <section class="panel panel-transparent">
+                <header class="panel-heading">
+                    <h2 class="panel-title">图片浏览记录</h2>
+                </header>
+                <div class="panel-body">
+                    <section class="panel panel-group">
+                        <header class="panel-heading bg-primary">
+
+                        <div class="widget-profile-info">
+                        <div class="profile-info">
+                            <h4 class="name text-semibold">欢迎：{{ request.session.username }}</h4>
+                            <h5 class="role">猜测您想搜索的图片</h5>
+                            <div class="profile-footer">
+                                <a href="{% url 'home:change_userinfo'%}">(编辑个人资料)</a>
+                            </div>
+                        </div>
+                        </div>
+                    </header>
+                        <div id="accordion">
+                        <div class="panel panel-accordion panel-accordion-first">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1One">
+                                    <i class="fa fa-check"></i> 图片搜索历史
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse1One" class="accordion-body collapse in">
+                            <div class="panel-body">
+                                <ul class="widget-todo-list">
+                                    {% for history in bus_history_list %}
+                                    <li>
+                                        <div class="checkbox-custom checkbox-default">
+                                            <a href="{% url 'home:bus_detail' history.bus_id %}">{{ history.bus }}</a>
+                                        </div>
+                                        <div class="todo-actions">
+                                            <a class="todo-remove" href="#">
+                                                <i class="fa fa-times" onclick="f('Bus',{{ history.id }})"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                        {% empty %}
+                                        暂无浏览记录，<a href="/">查看图片</a>
+                                    {% endfor %}
+                                    <script>
+                                        function f(type,id) {
+                                            $.ajax({
+                                                url:"/del_history",
+                                                data:{type:type,id:id},
+                                                type:"get",
+                                                dataType:"json",
+                                                success:function (data) {
+                                                    if (data.status==1){
+                                                       console.log("删除成功")
+                                                    }
+                                                    else {
+                                                        console.log("删除失败")
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    </script>
+                                </ul>
+                                <hr class="solid mt-sm mb-lg">
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+    <script src="/static/assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
+    <script src="/static/assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
+    <script src="/static/assets/vendor/jquery-appear/jquery.appear.js"></script>
+    <script src="/static/assets/vendor/bootstrap-multiselect/bootstrap-multiselect.js"></script>
+    <script src="/static/assets/vendor/jquery-easypiechart/jquery.easypiechart.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.js"></script>
+    <script src="/static/assets/vendor/flot-tooltip/jquery.flot.tooltip.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.pie.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.categories.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.resize.js"></script>
+    <script src="/static/assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
+    <script src="/static/assets/vendor/raphael/raphael.js"></script>
+    <script src="/static/assets/vendor/morris/morris.js"></script>
+    <script src="/static/assets/vendor/gauge/gauge.js"></script>
+    <script src="/static/assets/vendor/snap-svg/snap.svg.js"></script>
+    <script src="/static/assets/vendor/liquid-meter/liquid.meter.js"></script>
+    <script src="/static/assets/vendor/jqvmap/jquery.vmap.js"></script>
+    <script src="/static/assets/vendor/jqvmap/data/jquery.vmap.sampledata.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.africa.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.asia.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.australia.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.europe.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.north-america.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.south-america.js"></script>
+    <script src="/static/assets/javascripts/theme.js"></script>
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+    <script src="/static/assets/javascripts/theme.init.js"></script>
+{% endblock %}
+
+

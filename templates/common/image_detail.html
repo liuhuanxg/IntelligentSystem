@@ -1,0 +1,133 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+遥感数据服务平台| 图片详情
+{% endblock %}
+
+
+{% block style %}
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/magnific-popup/magnific-popup.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/skins/default.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
+    <script src="/static/assets/vendor/modernizr/modernizr.js"></script>
+    <style>
+        td{color: black;}
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <header class="page-header">
+        <h2>图片信息</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>图片信息</span></li>
+                <li><span>{{ image.image_name }}详情</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+    <div class="row">
+    <div class="col-md-12">
+    <section class="panel">
+        <header class="panel-heading">
+            <h2 class="panel-title">详细信息</h2>
+        </header>
+        <div class="panel-body">
+            <a href="/" class="btn btn-success">返回主页</a>
+            <div class="table-responsive">
+                <table class="table mb-none table-bordered">
+                    <tbody>
+                        <tr>
+                            <td width="100px">图片名称：</td>
+                            <td>{{ image.img_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>图片详情：</td>
+                            <td><img src="/static/{{ image.img_path }}" alt="" width="500px" height="300px"></td>
+                        </tr>
+                        <tr>
+                            <td>图像xml：</td>
+                            <td>{{ image.img_xml }}</td>
+                        </tr>
+                        <tr>
+                            <td>图像来源：</td>
+                            <td>{{ image.img_source }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>图像长度：</td>
+                            <td>{{ image.img_length }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>图像宽度：</td>
+                            <td>{{ image.img_width }}</td>
+                        </tr>
+                        <tr>
+                            <td>图像高度：</td>
+                            <td>{{ image.img_height }}</td>
+                        </tr>
+                        <tr>
+                            <td>图像描述：</td>
+                            <td>{{ image.img_des }}</td>
+                        </tr>
+                        <tr>
+                            <td>图像站点：</td>
+                            <td>{{ image.station }}</td>
+                        </tr>
+                        <tr>
+                            <td>图像类型：</td>
+                            <td>{{ image.type }}</td>
+                        </tr>
+                        <tr>
+                            <td>创建时间：</td>
+                            <td>{{ image.add_time }}</td>
+                        </tr>
+                        <tr>
+                            <td>图像状态：</td>
+                            <td>
+                                {% if image.status %}
+                                <button type="button" class="btn btn-sm btn-success" } >
+                                    正常
+                                </button>
+                                {% else %}
+                                    删除
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    </div>
+
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+    <script src="/static/assets/javascripts/theme.js"></script>
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+    <script src="/static/assets/javascripts/theme.init.js"></script>
+{% endblock %}
+

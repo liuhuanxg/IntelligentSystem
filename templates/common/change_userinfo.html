@@ -1,0 +1,143 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    遥感数据服务平台 | 修改个人信息
+{% endblock %}
+
+
+{% block style %}
+    <meta charset="UTF-8">
+    <meta name="keywords" content="HTML5 Admin Template" />
+    <meta name="description" content="Porto Admin - Responsive HTML5 Template">
+    <meta name="author" content="okler.net">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/magnific-popup/magnific-popup.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+    <link rel="stylesheet" href="/static/assets/vendor/bootstrap-fileupload/bootstrap-fileupload.min.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/skins/default.css" />
+    <link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
+    <script src="/static/assets/vendor/modernizr/modernizr.js"></script>
+{% endblock %}
+
+
+{% block content %}
+<header class="page-header">
+    <h2>修改个人信息</h2>
+
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="/">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            <li><span>个人中心</span></li>
+            <li><span>修改信息</span></li>
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+    </div>
+</header>
+<section class="panel">
+<header class="panel-heading">
+    <h2 class="panel-title">修改个人信息</h2>
+</header>
+    <div class="panel-body">
+    <form class="form-horizontal form-bordered" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputReadOnly">用户名：</label>
+            <div class="col-md-6">
+                <input type="text" value="{{ user.username }}" id="inputReadOnly" class="form-control" readonly="readonly">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputDefault">昵称：</label>
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="inputDefault" name="nick_name" value="{{ user.nick_name }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputHelpText">性别</label>
+            <div class="col-md-6">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="gender" id="optionsRadios1" value="1" {% if user.gender != 0 %} checked{% endif %}>
+                    男
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="gender" id="optionsRadios2" value="0" {% if user.gender == 0 %} checked{% endif %}>
+                    女
+                </label>
+            </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputHelpText">电话</label>
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="inputHelpText" name="phone" value="{{ user.phone }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputRounded">邮箱</label>
+            <div class="col-md-6">
+                <input type="text" class="form-control input-rounded" id="inputRounded" name="email" value="{{ user.email }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputFocus">地址</label>
+            <div class="col-md-6">
+                <input class="form-control" id="inputFocus" type="text" value="{{ user.address }}" name="address">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputFocus">头像</label>
+            <div class="col-md-6">
+                <input class="form-control" type="file" name="image">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="inputFocus"></label>
+            <div class="col-md-6">
+               <button type="submit" class="btn btn-primary">提交</button>
+            </div>
+        </div>
+    </form>
+    </div>
+</section>
+{% endblock %}
+
+
+{% block script %}
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+
+    <!-- Specific Page Vendor -->
+    <script src="/static/assets/vendor/jquery-autosize/jquery.autosize.js"></script>
+    <script src="/static/assets/vendor/bootstrap-fileupload/bootstrap-fileupload.min.js"></script>
+
+    <!-- Theme Base, Components and Settings -->
+    <script src="/static/assets/javascripts/theme.js"></script>
+
+    <!-- Theme Custom -->
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+
+    <!-- Theme Initialization Files -->
+    <script src="/static/assets/javascripts/theme.init.js"></script>
+
+{% endblock %}

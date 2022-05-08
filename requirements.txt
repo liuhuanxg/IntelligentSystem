@@ -1,0 +1,7 @@
+certifi==2019.9.11
+Django==2.0.5
+djangorestframework==3.10.3
+Pillow==7.1.2
+PyMySQL==0.9.3
+pytz==2019.3
+wincertstore==0.2
