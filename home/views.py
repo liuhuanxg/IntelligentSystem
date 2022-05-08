@@ -7,6 +7,7 @@ from IntelligentSystem.common import setPassword, loginValid, send_email, set_pa
 from string import ascii_letters, digits
 import random
 from django.db.models import Q, F
+import datetime
 
 
 @loginValid
@@ -236,3 +237,15 @@ def informations(request):
     data, page_list = set_page(imagestation_list, 20, page)
     return render(request, "common/infomations_bak.html",
                   {"data": data, "page_list": page_list, "site_name": site_name})
+
+
+def get_images_count(request):
+    seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+    imags = Image.objects.filter(add_time__gt=seven_days_ago)
+    ret = {"status": 1, "data": {}}
+    for image in imags:
+        date = "{:%Y-%m-%d}".format(image.add_time)
+        if "{:%Y-%m-%d}".format(image.add_time) not in ret:
+            ret["data"][date] = ret["data"].get(date, 0) + 1
+
+    return JsonResponse(ret)

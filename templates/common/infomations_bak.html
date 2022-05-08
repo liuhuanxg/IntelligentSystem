@@ -73,44 +73,8 @@
 
                     <!-- Flot: Basic -->
                     <div class="chart chart-md" id="flotDashBasic"></div>
-                    <script>
-                        function f(type,id) {
-                            $.ajax({
-                                url:"/del_history",
-                                data:{type:type,id:id},
-                                type: "get",
-                                dataType: "json",
-                                success:function (data) {
-                                    if (data.status==1){
-                                       console.log("删除成功")
-                                    }
-                                    else {
-                                        console.log("删除失败")
-                                    }
-                                }
-                            })
-                        }
-                        var flotDashBasicData = [{
-                            data: [
-                                [0, 170],
-                                [1, 169],
-                                [2, 173],
-                                [3, 188],
-                                [4, 147],
-                                [5, 113],
-                                [6, 128],
-                                [7, 169],
-                                [8, 173],
-                                [9, 128],
-                                [10, 128]
-                            ],
-                            label: "Series 1",
-                            color: "#0088cc"
-                        }];
 
-                        // See: /static/assets/javascripts/dashboard/examples.dashboard.js for more settings.
 
-                    </script>
 
                 </div>
             </section>
@@ -277,7 +241,22 @@
 		<!-- Theme Initialization Files -->
 		<script src="/static/assets/javascripts/theme.init.js"></script>
 
-
 		<!-- Examples -->
+        <script>
+            var flotDashBasicData=[{
+                data: [
+                    [0, 170],
+                    [1, 169],
+                    [2, 173],
+                    [3, 188],
+                    [4, 147],
+                    [5, 113],
+                    [6, 128],
+                ],
+                label: "Series 1",
+                color: "#0088cc"
+            }];
+        </script>
 		<script src="/static/assets/javascripts/dashboard/examples.dashboard.js"></script>
+
 {% endblock %}

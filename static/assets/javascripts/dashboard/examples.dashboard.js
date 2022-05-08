@@ -52,6 +52,54 @@
 	/*
 	Flot: Basic
 	*/
+	var flotDashBasicData=[{
+                            data: [
+                                [0, 170],
+                                [1, 169],
+                                [2, 173],
+                                [3, 188],
+                                [4, 147],
+                                [5, 113],
+                                [6, 128],
+                                [7, 169],
+                                [8, 173],
+                                [9, 128],
+                                [10, 128]
+                            ],
+                            label: "Series 1",
+                            color: "#0088cc"
+                        }];
+	// $.ajax({
+	// 	url:"/get_images_count",
+	// 	type: "get",
+	// 	dataType: "json",
+	// 	success:function (data) {
+	// 		if (data.status==1){
+	// 			console.log("成功")
+	// 			flotDashBasicData = [{
+	// 			data: [
+	// 				[0, 170],
+	// 				[1, 169],
+	// 				[2, 173],
+	// 				[3, 188],
+	// 				[4, 147],
+	// 				[5, 113],
+	// 				[6, 128],
+	// 				[7, 169],
+	// 				[8, 173],
+	// 				[9, 128],
+	// 				[10, 128]
+	// 			],
+	// 			label: "Series 1",
+	// 			color: "#0088cc"
+	// 		}];
+	// 		}
+	// 		else {
+	// 			console.log("失败")
+	// 		}
+	// 	}
+	// })
+
 	var flotDashBasic = $.plot('#flotDashBasic', flotDashBasicData, {
 		series: {
 			lines: {

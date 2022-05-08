@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0.5/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'y=x%()bmo4tcnijocebt=gz7iifd1&g@f&j9hcnvxiom2b^iee'
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -57,7 +55,7 @@ ROOT_URLCONF = 'IntelligentSystem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,"templates")],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'IntelligentSystem.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0.5/ref/settings/#databases
 
@@ -80,14 +77,13 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'ENGINE': 'django.db.backends.mysql',   # 配置链接mysql数据库
-        'NAME': 'intelligent_system',                          # 要连接的数据库名称
-        'HOST': '127.0.0.1',                    # 数据库的ip地址
-        'USER': 'root',                         # 数据库的用户名
-        'PASSWORD': 'root123456',                     # 数据库密码
+        'ENGINE': 'django.db.backends.mysql',  # 配置链接mysql数据库
+        'NAME': 'intelligent_system',  # 要连接的数据库名称
+        'HOST': '127.0.0.1',  # 数据库的ip地址
+        'USER': 'root',  # 数据库的用户名
+        'PASSWORD': 'root123456',  # 数据库密码
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0.5/ref/settings/#auth-password-validators
@@ -107,7 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0.5/topics/i18n/
 
@@ -121,28 +116,31 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0.5/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS= [
-        os.path.join(BASE_DIR,"static")
-     ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static")
+]
 
-#用户上传文件的存储路径
-MEDIA_ROOT= os.path.join(BASE_DIR,'static')
+# 用户上传文件的存储路径
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
-#配置邮箱
+# 配置邮箱
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#smtp服务的邮箱服务器，163邮箱
+# smtp服务的邮箱服务器，163邮箱
 EMAIL_HOST = 'smtp.163.com'
-#smtp服务固定的端口
-EMAIL_PORT = 25  #994
-#发件人的邮箱
-EMAIL_HOST_USER = 'sd320939264@163.com'
-EMAIL_HOST_PASSWORD = 'WGAQENFSURIQQPYD'
-EMAIL_FROM = '智推图片系统<sd320939264@163.com>'
-
+# smtp服务固定的端口
+EMAIL_PORT = 25  # 994
+# 发件人的邮箱
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_FROM = ''
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE=True  # 关闭浏览器cookie 失效
+
+
+# hdfs配置
+hdfs_host = 'http://43.138.217.253:61001'
+hdfs_uname = 'root'

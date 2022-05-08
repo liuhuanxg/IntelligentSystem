@@ -25,6 +25,7 @@ urlpatterns = [
     path('site_message/', site_message, name="site_message"),
     path('site_detail/<int:id>', site_detail, name="site_detail"),
     path('informations/', informations, name="informations"),
+    path('get_images_count/', get_images_count, name="get_images_count"),
 ]
 
 app_name = "home"
