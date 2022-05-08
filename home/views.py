@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from .models import *
 from django.shortcuts import HttpResponseRedirect
 from home.forms import UserForm
@@ -8,6 +8,14 @@ from string import ascii_letters, digits
 import random
 from django.db.models import Q, F
 import datetime
+from .admin import xml_queues
+import os
+from IntelligentSystem.settings import (
+    MEDIA_ROOT,
+    img_base_path,
+    xml_base_path
+)
+import zipfile
 
 
 @loginValid
@@ -249,3 +257,69 @@ def get_images_count(request):
             ret["data"][date] = ret["data"].get(date, 0) + 1
 
     return JsonResponse(ret)
+
+
+def save_file(received_file, filename):
+    print("received_file:{},filename:{}".format(received_file, filename))
+    with open(filename, 'wb')as f:
+        f.write(received_file.read())
+
+
+import time
+
+
+def batch_upload(request):
+    data = request.FILES
+    count = 1
+    print(list(data.items()))
+    while True:
+        img_name = data.get("img_name" + str(count))
+        img_xml = data.get("img_xml" + str(count))
+
+        if not img_name or not img_xml:
+            break
+        image = Image()
+        img_name_path = "".join(str(time.time()).split(".")) + img_name.name
+        img_path = os.path.join(MEDIA_ROOT, img_base_path, img_name_path)
+        save_file(img_name, img_path)
+        img_xml_name = "".join(str(time.time()).split(".")) + img_xml.name
+        xml_path = os.path.join(MEDIA_ROOT, xml_base_path, img_xml_name)
+        save_file(img_xml, xml_path)
+        image.img_name = "this is name"
+        image.img_path = os.path.join(img_base_path, img_name_path)
+        image.img_xml = os.path.join(xml_base_path, img_xml_name)
+        image.save()
+        count += 1
+        xml_queues.put({"id": image.id, "xml_path": xml_path})
+        print("xml_queues:{}".format(xml_queues.get()))
+    return render(request, "common/batch_upload.html")
+
+
+def filestream(filepath, chunk_size=512):
+    file = open(filepath, "rb")
+    while True:
+        stream = file.read(chunk_size)
+        if stream:
+            yield stream
+        else:
+            break
+
+
+def batch_download(request):
+    images = Image.objects.all()
+    startdir = MEDIA_ROOT
+    ret_file_name = "all" + '.zip'
+    file_news = os.path.join(MEDIA_ROOT, ret_file_name)
+    z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
+    paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, xml_base_path)]
+    for path in paths:
+        for dirpath, dirnames, filenames in os.walk(path):
+            fpath = dirpath.replace(startdir, '')
+            fpath = fpath and fpath + os.sep or ''
+            for filename in filenames:
+                z.write(os.path.join(dirpath, filename), fpath + filename)
+    z.close()
+    resp = StreamingHttpResponse(filestream(file_news))
+    resp['content_type'] = "application/octet-stream"
+    resp['Content-Disposition'] = 'attachment; filename=' + os.path.basename(ret_file_name)
+    return resp

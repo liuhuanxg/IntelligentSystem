@@ -144,3 +144,6 @@ EMAIL_FROM = ''
 # hdfs配置
 hdfs_host = 'http://43.138.217.253:61001'
 hdfs_uname = 'root'
+
+img_base_path = "upload/image"
+xml_base_path = "upload/xml"

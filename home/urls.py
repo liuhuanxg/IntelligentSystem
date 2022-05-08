@@ -26,6 +26,10 @@ urlpatterns = [
     path('site_detail/<int:id>', site_detail, name="site_detail"),
     path('informations/', informations, name="informations"),
     path('get_images_count/', get_images_count, name="get_images_count"),
+
+    # 批量上传
+    path('batch_upload/', batch_upload, name="batch_upload"),
+    path('batch_download/', batch_download, name="batch_download"),
 ]
 
 app_name = "home"

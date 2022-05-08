@@ -7,6 +7,7 @@ from IntelligentSystem.settings import BASE_DIR
 from queue import Queue
 import time
 from urllib.parse import quote, unquote
+from django.utils.html import format_html
 
 admin.site.site_header = '遥感数据服务平台管理后台'
 admin.site.site_title = '遥感数据服务平台管理后台'
@@ -30,13 +31,15 @@ class ParseXml(Thread):
                 with open(data["xml_path"], "r") as fp:
                     print(fp)
 
+                # TODO 解析xml文件
+
             except:
                 time.sleep(1)
 
 
-for _ in range(3):
-    parse = ParseXml()
-    parse.start()
+# for _ in range(3):
+#     parse = ParseXml()
+#     parse.start()
 
 
 # 类型管理
@@ -58,10 +61,18 @@ class StationAdmin(admin.ModelAdmin):
 # 图片管理
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ["img_name", "img_path", "img_source", "station", "type"]
-    search_fields = ["img_name"]
+    list_display = ["img_name", "img_length", "img_width", "img_height", "img_source", "station", "type", "operator"]
+    actions = ['delete_selected']
+    search_fields = ["img_name", "make_published"]
     list_per_page = 50
     list_filter = ["img_name"]
+
+    def operator(self, obj):
+        return format_html(
+            '<a href="/batch_upload/">批量导入<a/>'
+        )
+
+    operator.short_description = '批量导入'
 
     def save_model(self, request, obj, form, change):
         path = request.path

@@ -1,0 +1,134 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    遥感数据服务平台|批量上传
+{% endblock %}
+
+
+{% block style %}
+  <!-- Web Fonts  -->
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+
+		<!-- Vendor CSS -->
+		<link rel="stylesheet" href="/static/assets/vendor/bootstrap/css/bootstrap.css" />
+		<link rel="stylesheet" href="/static/assets/vendor/font-awesome/css/font-awesome.css" />
+		<link rel="stylesheet" href="/static/assets/vendor/magnific-popup/magnific-popup.css" />
+		<link rel="stylesheet" href="/static/assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+
+		<!-- Theme CSS -->
+		<link rel="stylesheet" href="/static/assets/stylesheets/theme.css" />
+
+		<!-- Skin CSS -->
+		<link rel="stylesheet" href="/static/assets/stylesheets/skins/default.css" />
+
+		<!-- Theme Custom CSS -->
+		<link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
+
+		<!-- Head Libs -->
+		<script src="/static/assets/vendor/modernizr/modernizr.js"></script>
+{% endblock %}
+
+{% block content %}
+<header class="page-header">
+						<h2>Form Layouts</h2>
+
+						<div class="right-wrapper pull-right">
+							<ol class="breadcrumbs">
+								<li>
+									<a href="index.html">
+										<i class="fa fa-home"></i>
+									</a>
+								</li>
+								<li><span>Forms</span></li>
+								<li><span>Layouts</span></li>
+							</ol>
+
+							<a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+						</div>
+					</header>
+
+    <!-- start: page -->
+    <div class="row">
+        <div class="col-md-12">
+            <form id="form1" class="form-horizontal" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <section class="panel">
+                    <header class="panel-heading">
+                        <div class="panel-actions">
+                            <a href="#" class="fa fa-caret-down"></a>
+                            <a href="#" class="fa fa-times"></a>
+                        </div>
+
+                        <h2 class="panel-title">上传图片</h2>
+
+                    </header>
+                    <div class="panel-body" id="div-SQL1">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">图片地址: </label>
+                            <div class="col-sm-8">
+                                <input type="file" name="img_name1" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label class="col-sm-4 control-label">图片xml: </label>
+                            <div class="col-sm-8">
+                                <input type="file" name="img_xml1" class="form-control">
+                            </div>
+                        </div>
+                        <hr/>
+                    </div>
+                    <footer class="panel-footer">
+                        <button type="button" class="btn btn-default" onclick="addMutilSQL()">添加</button>
+                        <button class="btn btn-primary">提交 </button>
+                    </footer>
+                    <script>
+                        var index=1;
+                      function addMutilSQL(){
+                       var addstep = index+1;
+                       $("#div-SQL1").after('<div class="panel-body" id="div-SQL' + addstep + '">\n' +
+                           '                        <div class="form-group">\n' +
+                           '                            <label class="col-sm-4 control-label">图片地址: </label>\n' +
+                           '                            <div class="col-sm-8">\n' +
+                           '                                <input type="file" name="img_name' + addstep + '" class="form-control">\n' +
+                           '                            </div>\n' +
+                           '                        </div>\n' +
+                           '                        <div class="form-group" >\n' +
+                           '                            <label class="col-sm-4 control-label">图片xml: </label>\n' +
+                           '                            <div class="col-sm-8">\n' +
+                           '                                <input type="file" name="img_xml' + addstep + '" class="form-control">\n' +
+                           '                            </div>\n' +
+                           '                        </div>\n' +
+                           '<hr/>'+
+                           '                    </div>'
+                       );
+                       index+=1;
+                      }
+                    </script>
+                </section>
+            </form>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <!-- Vendor -->
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+
+    <!-- Theme Base, Components and Settings -->
+    <script src="/static/assets/javascripts/theme.js"></script>
+
+    <!-- Theme Custom -->
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+
+    <!-- Theme Initialization Files -->
+    <script src="/static/assets/javascripts/theme.init.js"></script>
+
+{% endblock %}

@@ -55,7 +55,7 @@ class Image(models.Model):
         verbose_name = "图片"
         verbose_name_plural = "图片"
 
-    img_name = models.CharField("图片名称", max_length=30, unique=True)
+    img_name = models.CharField("图片名称", max_length=100)
     img_path = models.ImageField(upload_to='upload/image', verbose_name="图片路径")
     img_xml = models.FileField(upload_to='upload/xml', verbose_name="图像xml")
     img_source = models.CharField(verbose_name="图像来源", max_length=30, null=True)
