@@ -17,6 +17,8 @@ from IntelligentSystem.settings import (
 )
 import zipfile
 
+import time
+
 
 @loginValid
 def index(request):
@@ -188,9 +190,9 @@ def image_message(request):
     print(type_name, image_name)
     if image_name or type_name:
         image_list = Image.objects.filter(
-            Q(img_name__icontains=image_name) or Q(type__type_name__icontains=type_name)).order_by("id")
+            Q(img_name__icontains=image_name) or Q(type__type_name__icontains=type_name), img_status=1).order_by("-id")
     else:
-        image_list = Image.objects.all().order_by("id")
+        image_list = Image.objects.all().order_by("-id")
     print(image_list)
     page = request.GET.get("page", 0)
     data, page_list = set_page(image_list, 20, page)
@@ -243,31 +245,80 @@ def informations(request):
         imagestation_list = ImageStation.objects.all().order_by("id")
     page = request.GET.get("page", 0)
     data, page_list = set_page(imagestation_list, 20, page)
-    return render(request, "common/infomations_bak.html",
+    return render(request, "common/infomations.html",
                   {"data": data, "page_list": page_list, "site_name": site_name})
 
 
+# 获取图片数量
 def get_images_count(request):
+    ret = {"status": 1, "data": {}}
     seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
     imags = Image.objects.filter(add_time__gt=seven_days_ago)
-    ret = {"status": 1, "data": {}}
+    dates = []
+    images_group_by_site = {}
     for image in imags:
         date = "{:%Y-%m-%d}".format(image.add_time)
-        if "{:%Y-%m-%d}".format(image.add_time) not in ret:
-            ret["data"][date] = ret["data"].get(date, 0) + 1
+        station = image.station.site_name
+        if date not in dates:
+            dates.append(date)
+        if station not in images_group_by_site:
+            images_group_by_site[station] = {}
+        if date not in images_group_by_site[station]:
+            images_group_by_site[station][date] = images_group_by_site[station].get(date, 0) + 1
 
+    series = []
+    for station, count in images_group_by_site.items():
+        series.append(
+            {
+                "name": station,
+                "type": 'bar',
+                "stack": 'total',
+                "label": {
+                    "show": True
+                },
+                "emphasis": {
+                    "focus": 'series'
+                },
+                "data": list(count.values())
+            }
+        )
+
+    option = {
+        "tooltip": {
+            "trigger": 'axis',
+            "axisPointer": {
+                "type": 'shadow'
+            }
+        },
+        "legend": {},
+        "grid": {
+            "left": '3%',
+            "right": '4%',
+            "bottom": '3%',
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": 'value'
+        },
+        "yAxis": {
+            "type": 'category',
+            "data": dates
+        },
+        "series": series
+    }
+    print(option)
+    ret["data"]["label1"] = option
     return JsonResponse(ret)
 
 
+# 保存图片
 def save_file(received_file, filename):
     print("received_file:{},filename:{}".format(received_file, filename))
     with open(filename, 'wb')as f:
         f.write(received_file.read())
 
 
-import time
-
-
+# 批量上传
 def batch_upload(request):
     data = request.FILES
     count = 1
@@ -291,10 +342,10 @@ def batch_upload(request):
         image.save()
         count += 1
         xml_queues.put({"id": image.id, "xml_path": xml_path})
-        print("xml_queues:{}".format(xml_queues.get()))
     return render(request, "common/batch_upload.html")
 
 
+# 下载文件
 def filestream(filepath, chunk_size=512):
     file = open(filepath, "rb")
     while True:
@@ -305,21 +356,25 @@ def filestream(filepath, chunk_size=512):
             break
 
 
+# 批量下载
 def batch_download(request):
-    images = Image.objects.all()
-    startdir = MEDIA_ROOT
-    ret_file_name = "all" + '.zip'
-    file_news = os.path.join(MEDIA_ROOT, ret_file_name)
-    z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
-    paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, xml_base_path)]
-    for path in paths:
-        for dirpath, dirnames, filenames in os.walk(path):
-            fpath = dirpath.replace(startdir, '')
-            fpath = fpath and fpath + os.sep or ''
-            for filename in filenames:
-                z.write(os.path.join(dirpath, filename), fpath + filename)
-    z.close()
-    resp = StreamingHttpResponse(filestream(file_news))
-    resp['content_type'] = "application/octet-stream"
-    resp['Content-Disposition'] = 'attachment; filename=' + os.path.basename(ret_file_name)
-    return resp
+    data = request.GET
+    if data.get("download"):
+        images = Image.objects.all()
+        startdir = MEDIA_ROOT
+        ret_file_name = "all" + '.zip'
+        file_news = os.path.join(MEDIA_ROOT, ret_file_name)
+        z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
+        paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, xml_base_path)]
+        for path in paths:
+            for dirpath, dirnames, filenames in os.walk(path):
+                fpath = dirpath.replace(startdir, '')
+                fpath = fpath and fpath + os.sep or ''
+                for filename in filenames:
+                    z.write(os.path.join(dirpath, filename), fpath + filename)
+        z.close()
+        resp = StreamingHttpResponse(filestream(file_news))
+        resp['content_type'] = "application/octet-stream"
+        resp['Content-Disposition'] = 'attachment; filename=' + os.path.basename(ret_file_name)
+        return resp
+    return render(request, "common/batch_download.html")
