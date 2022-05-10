@@ -5,3 +5,4 @@ __pycache__/
 migrations
 static/upload
 logs
+*.zip
