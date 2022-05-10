@@ -13,7 +13,7 @@ import os
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
     img_base_path,
-    xml_base_path
+    des_file_base_path
 )
 import zipfile
 
@@ -325,20 +325,20 @@ def batch_upload(request):
     print(list(data.items()))
     while True:
         img_name = data.get("img_name" + str(count))
-        img_xml = data.get("img_xml" + str(count))
+        img_json = data.get("img_json" + str(count))
 
-        if not img_name or not img_xml:
+        if not img_name or not img_json:
             break
         image = Image()
         img_name_path = "".join(str(time.time()).split(".")) + img_name.name
         img_path = os.path.join(MEDIA_ROOT, img_base_path, img_name_path)
         save_file(img_name, img_path)
-        img_xml_name = "".join(str(time.time()).split(".")) + img_xml.name
-        xml_path = os.path.join(MEDIA_ROOT, xml_base_path, img_xml_name)
-        save_file(img_xml, xml_path)
+        img_json_name = "".join(str(time.time()).split(".")) + img_json.name
+        xml_path = os.path.join(MEDIA_ROOT, des_file_base_path, img_json_name)
+        save_file(img_json, xml_path)
         image.img_name = "this is name"
         image.img_path = os.path.join(img_base_path, img_name_path)
-        image.img_xml = os.path.join(xml_base_path, img_xml_name)
+        image.img_json = os.path.join(des_file_base_path, img_json_name)
         image.save()
         count += 1
         xml_queues.put({"id": image.id, "xml_path": xml_path})
@@ -365,7 +365,7 @@ def batch_download(request):
         ret_file_name = "all" + '.zip'
         file_news = os.path.join(MEDIA_ROOT, ret_file_name)
         z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
-        paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, xml_base_path)]
+        paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, des_file_base_path)]
         for path in paths:
             for dirpath, dirnames, filenames in os.walk(path):
                 fpath = dirpath.replace(startdir, '')

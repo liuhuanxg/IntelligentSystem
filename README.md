@@ -110,7 +110,7 @@
 # 二、数据库设计
 
 - 图像
-  ID号、名称、图像路径、图像xml、图像类型ID、站点ID、图像来源、长宽高、描述、添加时间、修改时间
+  ID号、名称、图像路径、图像json、图像类型ID、站点ID、图像来源、长宽高、描述、添加时间、修改时间
 - 站点
   ID号、名称、添加时间、修改时间
 - 图像类型
@@ -125,7 +125,7 @@
 | 1    | 图像id     | id          | int(11)       | not null |      | 主键、自增、无符号 |
 | 2    | 图像名称   | name        | varchar(1024) |          |      | 唯一性约束         |
 | 3    | 图像路径   | img_path     | varchar(100)  |          |      |                    |
-| 4    | 图像xml    | img_xml     | varchar(100)  |          |      |                    |
+| 4    | 图像json    | img_json     | varchar(100)  |          |      |                    |
 | 5    | 图像类型id | pictype_id  | int(11)       |          |      |                    |
 | 6    | 站点id     | station_id  | int(11)       |          |      |                    |
 | 7    | 图像来源   | pic_source  | varchar(1024) |          |      |                    |

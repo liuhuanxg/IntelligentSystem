@@ -1,4 +1,5 @@
 from django.db import models
+from IntelligentSystem.settings import des_file_base_path, img_base_path
 
 
 # 用户数据表
@@ -56,16 +57,16 @@ class Image(models.Model):
         verbose_name_plural = "图片"
 
     img_name = models.CharField("图片名称", max_length=100)
-    img_path = models.ImageField(upload_to='upload/image', verbose_name="图片路径")
-    img_xml = models.FileField(upload_to='upload/xml', verbose_name="图像xml")
+    img_path = models.ImageField(upload_to=img_base_path, verbose_name="图片路径")
+    img_json = models.FileField(upload_to=des_file_base_path, verbose_name="图像json")
     img_source = models.CharField(verbose_name="图像来源", max_length=30, null=True)
     img_length = models.CharField(verbose_name="图像长度", max_length=30, null=True)
     img_width = models.CharField(verbose_name="图像宽度", max_length=30, null=True)
     img_height = models.CharField(verbose_name="图像高度", max_length=30, null=True)
     img_status = models.BooleanField(verbose_name="图像状态", default=1)
     img_des = models.TextField(verbose_name="图像描述", null=True)
-    station = models.ForeignKey("ImageStation", on_delete=models.CASCADE, default=1, verbose_name="图像站点")
-    type = models.ForeignKey("ImageType", on_delete=models.CASCADE, default=1, verbose_name="图像类型")
+    station = models.ForeignKey("ImageStation", on_delete=models.DO_NOTHING, verbose_name="图像站点", null=True)
+    type = models.ForeignKey("ImageType", on_delete=models.DO_NOTHING, verbose_name="图像类型", null=True)
     add_time = models.DateTimeField(verbose_name="创建时间", auto_now=True)
     modify_time = models.DateTimeField(verbose_name="修改时间", auto_now=True)
 
