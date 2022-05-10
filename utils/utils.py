@@ -14,15 +14,15 @@ xml_queues = Queue()
 class ParseXml(Thread):
     def __init__(self):
         super(ParseXml, self).__init__()
-
+        self.exit_count = 0
     def run(self) -> None:
         while True:
             try:
                 if xml_queues.empty():
-                    time.sleep(1)
-                    print(1111)
-                    continue
-                # {"id=obj.id, "xml_path=img_json}
+                    time.sleep(0.5)
+                    self.exit_count += 1
+                    if self.exit_count>=3:
+                        break
                 """
                 {
                     "img_name=100,

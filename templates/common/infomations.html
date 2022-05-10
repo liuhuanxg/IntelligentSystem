@@ -62,7 +62,7 @@
 
                     <h2 class="panel-title">各站点数据量占比</h2>
                     <p class="panel-subtitle">
-                        最近一周上传的数据量变化
+                        所有站点的数据汇总
                     </p>
                 </header>
                 <div class="panel-body">
@@ -75,9 +75,9 @@
             <section class="panel">
                 <header class="panel-heading">
 
-                    <h2 class="panel-title">各站点数据量占比</h2>
+                    <h2 class="panel-title">各类型数据量占比</h2>
                     <p class="panel-subtitle">
-                        最近一周上传的数据量变化
+                        所有类型的数据汇总
                     </p>
                 </header>
                 <div class="panel-body">
@@ -159,7 +159,13 @@
         <script>
             var chartDom = document.getElementById('flotDashBasic');
             var myChart = echarts.init(chartDom);
+            var chartDom2 = document.getElementById('flotDashBasic2');
+            var myChart2 = echarts.init(chartDom2);
+            var chartDom3 = document.getElementById('flotDashBasic3');
+            var myChart3 = echarts.init(chartDom3);
             var option;
+            var label2_options;
+            var label3_options;
             $.ajax({
                 url:"/get_images_count",
                 type: "get",
@@ -168,8 +174,12 @@
                     if (data.status==1){
                         console.log("成功")
                         option=data.data.label1
-                        console.log(option)
+                        label2_options=data.data.label2_options
+                        label3_options=data.data.label3_options
+
+                        label2_options && myChart2.setOption(label2_options);
                         option && myChart.setOption(option);
+                        label3_options && myChart3.setOption(label3_options);
                     }
                     else {
                         console.log("失败")

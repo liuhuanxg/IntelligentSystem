@@ -75,11 +75,18 @@
                                     <li style="margin-top: 8px;" type="none">
                                         <table>
                                             <tr>
+                                            <!---
                                             <td>
                                                 <a href="{% url 'home:image_detail' image.id%}" class="btn btn-primary btn-sm">
                                                     {{ image.img_name }}
                                                 </a>
                                             </td>
+                                            -->
+                                            <td>
+                                                <img src="/static/{{ image.img_path.url }}" alt="{{ image.img_name }}" width="100px" height="80px">
+                                                {{ image.add_time }}
+                                            </td>
+
                                             </tr>
                                         </table>
                                     </li>

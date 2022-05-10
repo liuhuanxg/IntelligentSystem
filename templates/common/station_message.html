@@ -87,7 +87,7 @@
                         <td><a href="{% url 'home:site_detail' site.id %}">{{ site.site_name }}</a></td>
                         <td>
                             {% if site.site_status %}
-                                运行中
+                                正常
                                 {% else %}
                                 已删除
                             {% endif %}

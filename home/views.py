@@ -1,3 +1,6 @@
+import os
+import zipfile
+import time
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from .models import *
@@ -9,25 +12,21 @@ import random
 from django.db.models import Q, F
 import datetime
 from .admin import xml_queues
-import os
+from utils import utils
+
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
     img_base_path,
     des_file_base_path
 )
-import zipfile
-
-import time
 
 
 @loginValid
 def index(request):
-    image_number = Image.objects.count()
+    img_number = Image.objects.count()
     type_number = ImageType.objects.count()
-    ImageStation_number = ImageStation.objects.count()
-    user_id = request.session.get("user_id")
-
-    return render(request, "common/index.html", )
+    imagestation_number = ImageStation.objects.count()
+    return render(request, "common/index.html", locals())
 
 
 # 注册页面
@@ -256,19 +255,37 @@ def get_images_count(request):
     imags = Image.objects.filter(add_time__gt=seven_days_ago)
     dates = []
     images_group_by_site = {}
-    for image in imags:
-        date = "{:%Y-%m-%d}".format(image.add_time)
-        station = image.station.site_name
+    label2_data = {}
+    label3_data = {}
+
+    # 柱状图
+    for i in range(0, 7):
+        date = datetime.datetime.now() - datetime.timedelta(days=i)
+        date = "{:%Y-%m-%d}".format(date)
+        print(date)
         if date not in dates:
             dates.append(date)
-        if station not in images_group_by_site:
-            images_group_by_site[station] = {}
-        if date not in images_group_by_site[station]:
-            images_group_by_site[station][date] = images_group_by_site[station].get(date, 0) + 1
+    for image in imags:
+        date = "{:%Y-%m-%d}".format(image.add_time)
+        if not image.station:
+            station = "default"
+        else:
+            station = image.station.site_name
 
-    series = []
+        if not image.type:
+            type_name = "default"
+        else:
+            type_name = image.type.type_name
+
+        if station not in images_group_by_site:
+            images_group_by_site[station] = {date: 0 for date in dates}
+
+        label2_data[station] = label2_data.get(station, 0) + 1
+        label3_data[type_name] = label3_data.get(type_name, 0) + 1
+        images_group_by_site[station][date] = images_group_by_site[station].get(date, 0) + 1
+    laebl1_series = []
     for station, count in images_group_by_site.items():
-        series.append(
+        laebl1_series.append(
             {
                 "name": station,
                 "type": 'bar',
@@ -304,10 +321,70 @@ def get_images_count(request):
             "type": 'category',
             "data": dates
         },
-        "series": series
+        "series": laebl1_series
     }
-    print(option)
+
+    label2_options = {
+        "title": {
+            "text": '各地点数据占比',
+            "subtext": 'real data',
+            "left": 'center'
+        },
+        "tooltip": {
+            "trigger": 'item'
+        },
+        "legend": {
+            "orient": 'vertical',
+            "left": 'left'
+        },
+        "series": [
+            {
+                "name": 'Access From',
+                "type": 'pie',
+                "radius": '50%',
+                "data": [{"value": value, "name": station} for station, value in label2_data.items()],
+                "emphasis": {
+                    "itemStyle": {
+                        "shadowBlur": 10,
+                        "shadowOffsetX": 0,
+                        "shadowColor": 'rgba(255, 255, 255, 1)'
+                    }
+                }
+            }
+        ]
+    }
+    label3_options = {
+        "title": {
+            "text": '各类型数据占比',
+            "subtext": 'real data',
+            "left": 'center'
+        },
+        "tooltip": {
+            "trigger": 'item'
+        },
+        "legend": {
+            "orient": 'vertical',
+            "left": 'left'
+        },
+        "series": [
+            {
+                "name": 'Access From',
+                "type": 'pie',
+                "radius": '50%',
+                "data": [{"value": value, "name": type_name} for type_name, value in label3_data.items()],
+                "emphasis": {
+                    "itemStyle": {
+                        "shadowBlur": 10,
+                        "shadowOffsetX": 0,
+                        "shadowColor": 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    }
     ret["data"]["label1"] = option
+    ret["data"]["label2_options"] = label2_options
+    ret["data"]["label3_options"] = label3_options
     return JsonResponse(ret)
 
 
@@ -342,6 +419,7 @@ def batch_upload(request):
         image.save()
         count += 1
         xml_queues.put({"id": image.id, "xml_path": xml_path})
+        utils.start_thread()
     return render(request, "common/batch_upload.html")
 
 
