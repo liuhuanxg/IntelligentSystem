@@ -142,8 +142,11 @@ EMAIL_FROM = ''
 
 
 # hdfs配置
-hdfs_host = 'http://43.138.217.253:61001'
+hdfs_host = '43.138.217.253'
+hdfs_port = 61001
 hdfs_uname = 'root'
+hbase_port = 16010
+thrift_port = 9095
 
 img_base_path = "upload/image"
 des_file_base_path = "upload/img_des"

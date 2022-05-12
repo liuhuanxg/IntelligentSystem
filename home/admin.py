@@ -2,7 +2,7 @@ import os
 import json
 from django.contrib import admin
 from home.models import *
-from utils.hdfs_utils import upload_hdfs, down_load
+from utils.hdfs_utils import HdfsWrapper
 from threading import Thread
 from IntelligentSystem.settings import BASE_DIR
 from queue import Queue
@@ -59,7 +59,7 @@ class ImageAdmin(admin.ModelAdmin):
         img_json = unquote(os.path.join(static_path, obj.img_json.url))
         xml_queues.put({"id": obj.id, "xml_path": img_json})
         if path.find("change") == -1:
-            t1 = Thread(target=upload_hdfs, args=(img_path,))
-            t2 = Thread(target=upload_hdfs, args=(img_json,))
+            t1 = Thread(target=HdfsWrapper().upload_hdfs, args=(img_path,))
+            t2 = Thread(target=HdfsWrapper().upload_hdfs, args=(img_json,))
             t1.start()
             t2.start()
