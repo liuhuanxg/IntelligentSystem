@@ -1,6 +1,7 @@
 import os
 import zipfile
 import time
+import traceback
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from .models import *
@@ -456,3 +457,19 @@ def batch_download(request):
         resp['Content-Disposition'] = 'attachment; filename=' + os.path.basename(ret_file_name)
         return resp
     return render(request, "common/batch_download.html")
+
+
+def load_stations(request):
+    resp = {"status": 1, "data": []}
+    try:
+        stations = ImageStation.objects.filter(site_status=1).order_by("-modify_time")
+        data = []
+        for station in stations:
+            data.append({
+                "site_name": station.site_name,
+                "coordinate": (station.longitude, station.latitude, station.height)
+            })
+
+    except:
+        print(traceback.format_exc())
+    return JsonResponse(resp)

@@ -8,7 +8,10 @@ from django.contrib import admin
 urlpatterns = [
     re_path('^$', index),
     path('index/', index),
+    # 加载地点坐标
+    path('load_stations/', load_stations),
     path('register/', register, name="register"),
+
     path('login/', login, name="login"),
     path('logout/', logout, name="logout"),
 

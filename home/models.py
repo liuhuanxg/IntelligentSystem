@@ -29,6 +29,9 @@ class ImageStation(models.Model):
     site_status = models.BooleanField(verbose_name="站点状态", default=1)
     add_time = models.DateTimeField(verbose_name="创建时间", auto_now=True)
     modify_time = models.DateTimeField(verbose_name="修改时间", auto_now=True)
+    longitude = models.FloatField(verbose_name="经度", null=False, default=0)
+    latitude = models.FloatField(verbose_name="纬度", null=False, default=0)
+    height = models.FloatField(verbose_name="高度", null=False, default=0)
 
     def __str__(self):
         return self.site_name
