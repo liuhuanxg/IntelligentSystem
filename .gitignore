@@ -4,5 +4,7 @@ __pycache__/
 *$py.class
 migrations
 static/upload
+static/Cesium/
+static/Rectangle/
 logs
 *.zip

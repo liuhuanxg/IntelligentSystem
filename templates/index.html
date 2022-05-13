@@ -1,0 +1,138 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cesium APP</title>
+    <script src="{% static 'Cesium/Cesium.js' %}"></script>
+    <link href="{% static 'Cesium/Widgets/widgets.css' %}" rel="stylesheet" />
+    <style>
+		{#<!-- 全屏显示 -->#}
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="cesiumContainer" class="fullSize"></div>
+    {% for vo in location %}
+
+    {% endfor %}
+    <script>
+        /* 获取地图瓦片数据的url */
+        var mapUrl = new Cesium.UrlTemplateImageryProvider({
+                url: '/map/{z}/{x}/{y}.png',
+                fileExtension: 'png'
+        });
+
+        /* 显示地图模型 */
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            animation: false,//是否显示动画控件
+            baseLayerPicker: false,//是否显示图层选择控件
+            geocoder: false,
+            homeButton: false,
+            timeline: false,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            fullscreenButton: false,
+            vrButton: false,
+            infoBox: true,
+            imageryProvider: mapUrl,
+            terrainProvider : Cesium.createWorldTerrain({
+				 requestWaterMask : true,
+				 requestVertexNormals : true
+			 }),
+        });
+
+
+        /* 在指定位置绘制高清点 */
+		viewer.scene.postProcessStages.fxaa.enabled = false;    //关闭抗锯齿
+        viewer.scene.globe.depthTestAgainstTerrain = false; //解决地形遮挡entity问题
+
+		// 调整分辨率
+		var supportsImageRenderingPixelated = viewer.cesiumWidget._supportsImageRenderingPixelated;
+		if (supportsImageRenderingPixelated) {
+			var vtxf_dpr = window.devicePixelRatio;
+			while (vtxf_dpr >= 2.0) {
+				vtxf_dpr /= 2.0;
+			}
+			viewer.resolutionScale = vtxf_dpr;
+		}
+
+		//点的属性
+	 	var point_options = {
+            show: true, //是否展示
+            pixelSize: 20, //点的大小
+            {#heightReference: 1000,//相对高度#}
+            color: Cesium.Color.RED, //颜色
+            outlineColor: Cesium.Color.SKYBLUE, //边框颜色
+            outlineWidth: 5, //边框宽度
+            {#scaleByDistance: new Cesium.NearFarScalar(100, 5, 10000, 10), //缩放距离设置#}
+            translucencyByDistance: new Cesium.NearFarScalar(100, 0.2, 10000, 0.8),//点的半透明设置
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1, 10000000000),//点的显隐距离
+            disableDepthTestDistance: 5000000,//禁用深度测试距离
+		}
+
+
+		/* 将经纬度对象集合存到数组中 */
+        let arr = [];
+        //latitude纬度，longitude经度
+        let degrees = [{latitude: 45.27, longitude: -74.42, name: "北京"}, {latitude: 34.40, longitude: 109.11, name: "西安"}, {latitude: 30.40, longitude: 10.11, name: "北非"}]
+        for (let i = 0; degrees.length > i; i++){
+            let data = {};
+            data.latitude = degrees[i].latitude;
+            data.longitude = degrees[i].longitude;
+            data.name = degrees[i].name;
+            arr.push(data);
+        }
+
+		//绘制点
+        for (let i = 0; arr.length > i; i++){
+            viewer.entities.add({
+			position: Cesium.Cartesian3.fromDegrees(arr[i].longitude, arr[i].latitude, 15000.0), // 指定位置的经纬度和高度，默认东经北纬为正数
+			point: point_options, // 点的属性
+			label: {
+                // 文本。支持显式换行符“ \ n”
+                text: arr[i].name,
+                // 字体样式，以CSS语法指定字体
+                font: '14pt Source Han Sans CN',
+                // 字体颜色
+                fillColor: Cesium.Color.BLACK,
+                // 背景颜色
+                backgroundColor: Cesium.Color.AQUA,
+                // 是否显示背景颜色
+                showBackground: true,
+                // 字体边框
+                outline: true,
+                // 字体边框颜色
+                outlineColor: Cesium.Color.WHITE,
+                // 字体边框尺寸
+                outlineWidth: 10,
+                // 应用于图像的统一比例。比例大于会1.0放大标签，而比例小于会1.0缩小标签。
+                scale: 1.0,
+                // 设置样式：FILL：填写标签的文本，但不要勾勒轮廓；OUTLINE：概述标签的文本，但不要填写；FILL_AND_OUTLINE：填写并概述标签文本。
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                // 相对于坐标的垂直位置
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                // 相对于坐标的水平位置
+                horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+                // 该属性指定标签在屏幕空间中距此标签原点的像素偏移量
+                pixelOffset: new Cesium.Cartesian2(15,0),
+                // 是否显示
+                show: true
+            },
+            description: `
+                <p>这是entity的属性信息，entity的description里面可以写一段html</p>
+                <img width="450" height="200" src="{% static 'myadmin/章子怡.jfif' %}"></img>
+                <p>这里之后要放本地点的图片信息表哦</p>
+                <img width="450" height="200" src="{% static 'myadmin/章子怡.jfif' %}"></img>
+                <img width="450" height="200" src="{% static 'myadmin/章子怡.jfif' %}"></img>`
+         });
+        }
+    </script>
+</body>
