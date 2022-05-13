@@ -9,6 +9,8 @@ from queue import Queue
 from home.models import *
 
 xml_queues = Queue()
+hdfs_queues = Queue()
+hbase_queuess = Queue()
 
 
 class ParseXml(Thread):
@@ -73,6 +75,26 @@ class ParseXml(Thread):
             except:
                 print(traceback.format_exc())
                 time.sleep(1)
+
+
+class UploadHdfsData(Thread):
+    def __init__(self):
+        super(UploadHdfsData, self).__init__()
+        self.exit_count = 0
+    def run(self) -> None:
+        while True:
+            try:
+                if hdfs_queues.empty():
+                    time.sleep(0.5)
+                    self.exit_count += 1
+                    if self.exit_count>=3:
+                        break
+
+            except:
+                print(traceback.format_exc())
+                time.sleep(1)
+
+
 
 def start_thread():
     for _ in range(1):

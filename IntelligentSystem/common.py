@@ -16,11 +16,11 @@ def loginValid(func):
     def inner(request, *args, **kwargs):
         # 从cookie当中获取数据
         username = request.COOKIES.get("username")
-        id = request.session.get("user_id")
+        user_id = request.session.get("user_id")
         # 判断cookie存在
-        if username and id:
+        if username and user_id:
             # 通过id查询用户
-            user = User.objects.filter(id=id).first()
+            user = User.objects.filter(id=user_id).first()
             if user and user.username == username:  # 证明id时这个用户名对应的id
                 return func(request, *args, **kwargs)  # 跳转页面
         return HttpResponseRedirect("/login/")

@@ -3,6 +3,7 @@ import json
 from django.contrib import admin
 from home.models import *
 from utils.hdfs_utils import HdfsWrapper
+from utils.hbase_utils import HbaseWrapper
 from threading import Thread
 from IntelligentSystem.settings import BASE_DIR
 from queue import Queue
@@ -10,7 +11,7 @@ import time
 from urllib.parse import quote, unquote
 from django.utils.html import format_html
 import traceback
-from utils.utils import xml_queues
+from utils.utils import xml_queues, hdfs_queues, hbase_queuess
 
 admin.site.site_header = '遥感数据服务平台管理后台'
 admin.site.site_title = '遥感数据服务平台管理后台'
@@ -45,21 +46,23 @@ class ImageAdmin(admin.ModelAdmin):
         return format_html(
             '<a href="/batch_upload/">批量导入<a/>'
         )
-
     operator.short_description = '批量导入'
 
     def save_model(self, request, obj, form, change):
         path = request.path
-
         super(ImageAdmin, self).save_model(request, obj, form, change)
-        print(path)
+
         static_path = os.path.join(BASE_DIR, "static")
         img_path = unquote(os.path.join(static_path, obj.img_path.url), "utf-8")
         print(dir(obj.img_json))
         img_json = unquote(os.path.join(static_path, obj.img_json.url))
         xml_queues.put({"id": obj.id, "xml_path": img_json})
         if path.find("change") == -1:
+            # hdfs_queues.put(img_path)
+            # hdfs_queues.put(img_json)
+            # hbase_queuess.put(img_path)
             t1 = Thread(target=HdfsWrapper().upload_hdfs, args=(img_path,))
             t2 = Thread(target=HdfsWrapper().upload_hdfs, args=(img_json,))
+            t3 = Thread(target=HbaseWrapper().save, args=(img_json,))
             t1.start()
             t2.start()

@@ -11,7 +11,6 @@ class HdfsWrapper():
     def upload_hdfs(self, file_path):
         print("upload_hdfs file_path:{}".format(file_path))
         ret = self.client.upload('/input', file_path)
-
         print(ret)
 
     def down_load(self, file_path):
