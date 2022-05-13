@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load static %}
 
 {% block title %}
     遥感数据服务平台|首页
@@ -21,6 +22,43 @@
     <link rel="stylesheet" href="/static/assets/stylesheets/theme-custom.css">
     <script src="/static/assets/vendor/modernizr/modernizr.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=u8cfxcjETgPttanqSozYnG6B7lUreLwh"></script>
+    <script src="{% static 'Cesium/Cesium.js' %}"></script>
+    <link href="{% static 'Cesium/Widgets/widgets.css' %}" rel="stylesheet" />
+    <script src="/static/assets/vendor/jquery/jquery.js"></script>
+    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
+    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+    <script src="/static/assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
+    <script src="/static/assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
+    <script src="/static/assets/vendor/jquery-appear/jquery.appear.js"></script>
+    <script src="/static/assets/vendor/bootstrap-multiselect/bootstrap-multiselect.js"></script>
+    <script src="/static/assets/vendor/jquery-easypiechart/jquery.easypiechart.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.js"></script>
+    <script src="/static/assets/vendor/flot-tooltip/jquery.flot.tooltip.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.pie.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.categories.js"></script>
+    <script src="/static/assets/vendor/flot/jquery.flot.resize.js"></script>
+    <script src="/static/assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
+    <script src="/static/assets/vendor/raphael/raphael.js"></script>
+    <script src="/static/assets/vendor/morris/morris.js"></script>
+    <script src="/static/assets/vendor/gauge/gauge.js"></script>
+    <script src="/static/assets/vendor/snap-svg/snap.svg.js"></script>
+    <script src="/static/assets/vendor/liquid-meter/liquid.meter.js"></script>
+    <script src="/static/assets/vendor/jqvmap/jquery.vmap.js"></script>
+    <script src="/static/assets/vendor/jqvmap/data/jquery.vmap.sampledata.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.africa.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.asia.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.australia.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.europe.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.north-america.js"></script>
+    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.south-america.js"></script>
+    <script src="/static/assets/javascripts/theme.js"></script>
+    <script src="/static/assets/javascripts/theme.custom.js"></script>
+    <script src="/static/assets/javascripts/theme.init.js"></script>
 
 {% endblock %}
 {% block content %}
@@ -84,46 +122,140 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" id="">
+        <div id="cesiumContainer" class="fullSize"></div>
+        <script>
+            /* 将经纬度对象集合存到数组中 */
+            let arr = [];
 
+            /* 获取地图瓦片数据的url */
+            var mapUrl = new Cesium.UrlTemplateImageryProvider({
+                    url: '/static/Rectangle/{z}/{x}/{y}.png',
+                    fileExtension: 'png'
+            });
+
+            /* 显示地图模型 */
+            var viewer = new Cesium.Viewer('cesiumContainer', {
+                animation: false,//是否显示动画控件
+                baseLayerPicker: false,//是否显示图层选择控件
+                geocoder: false,
+                homeButton: false,
+                timeline: false,
+                sceneModePicker: false,
+                navigationHelpButton: false,
+                fullscreenButton: false,
+                vrButton: false,
+                infoBox: true,
+                imageryProvider: mapUrl,
+                terrainProvider : Cesium.createWorldTerrain({
+                     requestWaterMask : true,
+                     requestVertexNormals : true
+                 }),
+            });
+
+
+            /* 在指定位置绘制高清点 */
+            viewer.scene.postProcessStages.fxaa.enabled = false;    //关闭抗锯齿
+            viewer.scene.globe.depthTestAgainstTerrain = false; //解决地形遮挡entity问题
+
+            // 调整分辨率
+            var supportsImageRenderingPixelated = viewer.cesiumWidget._supportsImageRenderingPixelated;
+            if (supportsImageRenderingPixelated) {
+                var vtxf_dpr = window.devicePixelRatio;
+                while (vtxf_dpr >= 2.0) {
+                    vtxf_dpr /= 2.0;
+                }
+                viewer.resolutionScale = vtxf_dpr;
+            }
+
+            //点的属性
+            var point_options = {
+                show: true, //是否展示
+                pixelSize: 20, //点的大小
+                {#heightReference: 1000,//相对高度#}
+                color: Cesium.Color.RED, //颜色
+                outlineColor: Cesium.Color.SKYBLUE, //边框颜色
+                outlineWidth: 5, //边框宽度
+                {#scaleByDistance: new Cesium.NearFarScalar(100, 5, 10000, 10), //缩放距离设置#}
+                translucencyByDistance: new Cesium.NearFarScalar(100, 0.2, 10000, 0.8),//点的半透明设置
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1, 10000000000),//点的显隐距离
+                disableDepthTestDistance: 5000000,//禁用深度测试距离
+            }
+            $.ajax({
+                url:"/load_stations",
+                type: "get",
+                dataType: "json",
+                success:function (data) {
+                    if (data.status==1){
+                        console.log("成功")
+                        degrees=data.data.degrees
+                        draw_point(degrees)
+                         //latitude纬度，longitude经度
+                    {#let degrees = [{latitude: 45.27, longitude: -74.42, name: "北京"},#}
+                    {#{latitude: 34.40, longitude: 109.11, name: "西安"},#}
+                    {#{latitude: 30.40, longitude: 10.11, name: "北非"}]#}
+                    {#for (let i = 0; degrees.length > i; i++){#}
+                    {#    let data = {};#}
+                    {#    data.latitude = degrees[i].latitude;#}
+                    {#    data.longitude = degrees[i].longitude;#}
+                    {#    data.name = degrees[i].name;#}
+                    {#    arr.push(data);#}
+                    {# } #}
+                    }
+                    else {
+                        console.log("失败")
+                    }
+                }
+            })
+            function draw_point(degrees, station_image){
+                for (let i = 0; degrees.length > i; i++){
+                viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(arr[i].longitude, arr[i].latitude, 15000.0), // 指定位置的经纬度和高度，默认东经北纬为正数
+                point: point_options, // 点的属性
+                label: {
+                    // 文本。支持显式换行符“ \ n”
+                    text: arr[i].name,
+                    // 字体样式，以CSS语法指定字体
+                    font: '14pt Source Han Sans CN',
+                    // 字体颜色
+                    fillColor: Cesium.Color.BLACK,
+                    // 背景颜色
+                    backgroundColor: Cesium.Color.AQUA,
+                    // 是否显示背景颜色
+                    showBackground: true,
+                    // 字体边框
+                    outline: true,
+                    // 字体边框颜色
+                    outlineColor: Cesium.Color.WHITE,
+                    // 字体边框尺寸
+                    outlineWidth: 10,
+                    // 应用于图像的统一比例。比例大于会1.0放大标签，而比例小于会1.0缩小标签。
+                    scale: 1.0,
+                    // 设置样式：FILL：填写标签的文本，但不要勾勒轮廓；OUTLINE：概述标签的文本，但不要填写；FILL_AND_OUTLINE：填写并概述标签文本。
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    // 相对于坐标的垂直位置
+                    verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                    // 相对于坐标的水平位置
+                    horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+                    // 该属性指定标签在屏幕空间中距此标签原点的像素偏移量
+                    pixelOffset: new Cesium.Cartesian2(15,0),
+                    // 是否显示
+                    show: true
+                },
+                description: `
+                    <p>这是entity的属性信息，entity的description里面可以写一段html</p>
+                    <img width="450" height="200" src="{% static 'myadmin/章子怡.jfif' %}"></img>
+                    <img width="450" height="200" src="{% static 'myadmin/章子怡.jfif' %}"></img>
+                    <img width="450" height="200" src="{% static 'myadmin/章子怡.jfif' %}"></img>
+                    `
+             });
+            }
+            }
+        </script>
     </div>
 {% endblock %}
 {% block script %}
-    <script src="/static/assets/vendor/jquery/jquery.js"></script>
-    <script src="/static/assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
-    <script src="/static/assets/vendor/bootstrap/js/bootstrap.js"></script>
-    <script src="/static/assets/vendor/nanoscroller/nanoscroller.js"></script>
-    <script src="/static/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="/static/assets/vendor/magnific-popup/magnific-popup.js"></script>
-    <script src="/static/assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
-    <script src="/static/assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
-    <script src="/static/assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
-    <script src="/static/assets/vendor/jquery-appear/jquery.appear.js"></script>
-    <script src="/static/assets/vendor/bootstrap-multiselect/bootstrap-multiselect.js"></script>
-    <script src="/static/assets/vendor/jquery-easypiechart/jquery.easypiechart.js"></script>
-    <script src="/static/assets/vendor/flot/jquery.flot.js"></script>
-    <script src="/static/assets/vendor/flot-tooltip/jquery.flot.tooltip.js"></script>
-    <script src="/static/assets/vendor/flot/jquery.flot.pie.js"></script>
-    <script src="/static/assets/vendor/flot/jquery.flot.categories.js"></script>
-    <script src="/static/assets/vendor/flot/jquery.flot.resize.js"></script>
-    <script src="/static/assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
-    <script src="/static/assets/vendor/raphael/raphael.js"></script>
-    <script src="/static/assets/vendor/morris/morris.js"></script>
-    <script src="/static/assets/vendor/gauge/gauge.js"></script>
-    <script src="/static/assets/vendor/snap-svg/snap.svg.js"></script>
-    <script src="/static/assets/vendor/liquid-meter/liquid.meter.js"></script>
-    <script src="/static/assets/vendor/jqvmap/jquery.vmap.js"></script>
-    <script src="/static/assets/vendor/jqvmap/data/jquery.vmap.sampledata.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/jquery.vmap.world.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.africa.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.asia.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.australia.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.europe.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.north-america.js"></script>
-    <script src="/static/assets/vendor/jqvmap/maps/continents/jquery.vmap.south-america.js"></script>
-    <script src="/static/assets/javascripts/theme.js"></script>
-    <script src="/static/assets/javascripts/theme.custom.js"></script>
-    <script src="/static/assets/javascripts/theme.init.js"></script>
+
 {% endblock %}
 
 

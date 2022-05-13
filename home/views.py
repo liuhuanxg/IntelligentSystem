@@ -465,10 +465,19 @@ def load_stations(request):
         stations = ImageStation.objects.filter(site_status=1).order_by("-modify_time")
         data = []
         for station in stations:
-            data.append({
-                "site_name": station.site_name,
-                "coordinate": (station.longitude, station.latitude, station.height)
-            })
+            # {"latitude": 45.27, "longitude": -74.42, name: "北京"}, {"latitude": 34.40, "longitude": 109.11, name: "西安"}, {
+            #     "latitude": 30.40, "longitude": 10.11, name: "北非"}
+            # data.append({
+            #     "latitude": station.latitude,
+            #     "longitude": station.longitude,
+            #     "name": station.北京,
+            # })
+            pass
+        data["data"]["degrees"] = [
+            {"latitude": 45.27, "longitude": -74.42, "name": "北京"},
+            {"latitude": 34.40, "longitude": 109.11, "name": "西安"},
+            {"latitude": 30.40, "longitude": 10.11, "name": "北非"}
+        ]
 
     except:
         print(traceback.format_exc())
