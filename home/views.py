@@ -460,25 +460,24 @@ def batch_download(request):
 
 
 def load_stations(request):
-    resp = {"status": 1, "data": []}
+    resp = {"status": 1, "data": {"degrees": []}}
     try:
         stations = ImageStation.objects.filter(site_status=1).order_by("-modify_time")
-        data = []
         for station in stations:
-            # {"latitude": 45.27, "longitude": -74.42, name: "北京"}, {"latitude": 34.40, "longitude": 109.11, name: "西安"}, {
-            #     "latitude": 30.40, "longitude": 10.11, name: "北非"}
-            # data.append({
-            #     "latitude": station.latitude,
-            #     "longitude": station.longitude,
-            #     "name": station.北京,
-            # })
-            pass
-        data["data"]["degrees"] = [
-            {"latitude": 45.27, "longitude": -74.42, "name": "北京"},
-            {"latitude": 34.40, "longitude": 109.11, "name": "西安"},
-            {"latitude": 30.40, "longitude": 10.11, "name": "北非"}
-        ]
-
+            images = Image.objects.filter(station_id=station.id).order_by("-add_time")
+            images_message = """"""
+            for image in images:
+                images_message += """
+                <p>图像名称：{}；上传时间：{}</p>\n
+                <img width=\"450\" height=\"200\" src=\"/static/{}\"></img>\n  
+                """.format(image.img_name, image.add_time, image.img_path.url)
+            resp["data"]["degrees"].append({
+                "latitude": station.latitude,
+                "longitude": station.longitude,
+                "name": station.site_name,
+                "images": images_message
+            })
     except:
+        resp["status"] = 0
         print(traceback.format_exc())
     return JsonResponse(resp)
