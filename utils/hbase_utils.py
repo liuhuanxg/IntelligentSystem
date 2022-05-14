@@ -9,6 +9,11 @@ from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from hbase import HBase
+import os
+import re
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+from thrift.protocol import TBinaryProtocol
 
 
 
@@ -49,10 +54,11 @@ class HbaseWrapper(object):
 
     def upload_file(self, table_name, row_key, data):
         try:
-            self.client = HBase("{}:{}".format(hdfs_host, thrift_port))
             table = self.client.table(table_name)
-            self.client.mutateRow(table_name, row_key, data, {})
-            ret = table.put(row_key, data=data)
+            ret = table.put(row_key, data)
+            # self.client = HBase("{}:{}".format(hdfs_host, thrift_port))
+            # self.client.mutateRow(table_name, row_key, data, {})
+
             return ret
         except:
             print(traceback.extract_stack())
@@ -77,11 +83,19 @@ if __name__ == '__main__':
     # print(res)
 
     row_key = "".join(str(time.time()).split("."))
-    ret = wrapper.save(
-        table_name, row_key,
-        {b'cf1:col1': b'value1', b'cf2:col2': b'value2'}
-    )
-    chunck = open("../static/upload/image/1652185565920823D960620-D398-4D9E-AB30-ED9C39BAFF42.jpeg", "rb")
+    # ret = wrapper.save(
+    #     table_name, row_key,
+    #     {b'cf1:col1': b'value1', b'cf2:col2': b'value2'}
+    # )
+
+    colums = {
+        'picture': dict(max_versions=10),
+        'info': dict(max_versions=1, block_cache_enabled=False),
+    }
+    images_table_name = "images"
+    # res = wrapper.create_table(images_table_name, colums)
+
+    chunck = open("../static/upload/image/1652185565920823D960620-D398-4D9E-AB30-ED9C39BAFF42.jpeg", "rb").read()
 
     # picture是列族名，value是可以自定义的列名 同一个表中的不同数据都可以任意添加
     attribs = {}
@@ -89,6 +103,7 @@ if __name__ == '__main__':
     attribs[b'picture:chunck'] = chunck
     # #info是第二个列名 这个必须是str type
     attribs[b'info:image_name'] = image_name.encode("utf-8")
-    ret= wrapper.upload_file("images", row_key, attribs)
-    [Mutation(column="picture:chunck" , value=PicData)]
+    ret = wrapper.upload_file(images_table_name, row_key, attribs)
+
     print(ret)
+    print(type(chunck))

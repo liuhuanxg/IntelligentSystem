@@ -53,6 +53,7 @@ def register(request):
 
 # 登录
 def login(request):
+    error = ""
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -64,8 +65,8 @@ def login(request):
             request.session["user_id"] = u[0].id
             request.session["image"] = u[0].image.url
             return response
-
-    return render(request, "common/login.html")
+        error = "用户名或者密码有误！"
+    return render(request, "common/login.html", locals())
 
 
 # 退出

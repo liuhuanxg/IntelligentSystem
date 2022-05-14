@@ -72,6 +72,7 @@ class Image(models.Model):
     type = models.ForeignKey("ImageType", on_delete=models.DO_NOTHING, verbose_name="图像类型", null=True)
     add_time = models.DateTimeField(verbose_name="创建时间", auto_now=True)
     modify_time = models.DateTimeField(verbose_name="修改时间", auto_now=True)
+    hbase_row_key = models.CharField(verbose_name="hbase中的row_key", default="", max_length=100)
 
     def __str__(self):
         return self.img_name

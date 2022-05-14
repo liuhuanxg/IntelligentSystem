@@ -41,11 +41,12 @@ class ImageAdmin(admin.ModelAdmin):
     search_fields = ["img_name", "make_published"]
     list_per_page = 50
     list_filter = ["img_name"]
-
+    readonly_fields = ["hbase_row_key"]
     def operator(self, obj):
         return format_html(
             '<a href="/batch_upload/">批量导入<a/>'
         )
+
     operator.short_description = '批量导入'
 
     def save_model(self, request, obj, form, change):
@@ -54,15 +55,24 @@ class ImageAdmin(admin.ModelAdmin):
 
         static_path = os.path.join(BASE_DIR, "static")
         img_path = unquote(os.path.join(static_path, obj.img_path.url), "utf-8")
-        print(dir(obj.img_json))
+        print("img_path:{}, name:{}".format(img_path, obj.img_path.name))
         img_json = unquote(os.path.join(static_path, obj.img_json.url))
         xml_queues.put({"id": obj.id, "xml_path": img_json})
+        row_key = "".join(str(time.time()).split("."))
         if path.find("change") == -1:
             # hdfs_queues.put(img_path)
             # hdfs_queues.put(img_json)
             # hbase_queuess.put(img_path)
+            # 上传到hdfs中
             t1 = Thread(target=HdfsWrapper().upload_hdfs, args=(img_path,))
             t2 = Thread(target=HdfsWrapper().upload_hdfs, args=(img_json,))
-            t3 = Thread(target=HbaseWrapper().save, args=(img_json,))
+            # 上传到hbase中
+            attribs = {}
+            image_name = obj.img_path.name
+            chunck = open(img_path, "rb").read()
+            attribs[b'picture:chunck'] = chunck
+            attribs[b'info:image_name'] = image_name.encode("utf-8")
+            t3 = Thread(target=HbaseWrapper().save, args=(row_key, img_path, attribs))
             t1.start()
             t2.start()
+            t3.start()
