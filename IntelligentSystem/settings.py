@@ -127,6 +127,7 @@ STATICFILES_DIRS = [
 # 用户上传文件的存储路径
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
+# https://www.likecs.com/show-249040.html
 # 配置邮箱
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # smtp服务的邮箱服务器，163邮箱

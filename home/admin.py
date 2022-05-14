@@ -21,7 +21,7 @@ admin.site.site_title = '遥感数据服务平台管理后台'
 @admin.register(ImageType)
 class TypeAdmin(admin.ModelAdmin):
     list_display = ["type_name", "type_status", "add_time", "modify_time"]
-    search_fields = ["type_name"]
+    search_fields = ["type_name", "type_status"]
     list_per_page = 30
 
 

@@ -12,8 +12,9 @@ from string import ascii_letters, digits
 import random
 from django.db.models import Q, F
 import datetime
-from .admin import xml_queues
-from utils import utils
+from .admin import xml_queues, hbase_queuess
+from utils import utils, hbase_utils
+from threading import Thread
 
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
@@ -28,6 +29,17 @@ def index(request):
     type_number = ImageType.objects.count()
     imagestation_number = ImageStation.objects.count()
     return render(request, "common/index.html", locals())
+
+
+# 综合搜索
+@loginValid
+def comprehensive_search(request):
+    if request.method == "POST":
+        params = request.POST
+        start_time = params.get("start_time", "")
+        end_time = params.get("end_time", "")
+        print(start_time, end_time)
+    return render(request, "common/comprehensive_search.html", locals())
 
 
 # 注册页面
@@ -401,7 +413,7 @@ def save_file(received_file, filename):
 def batch_upload(request):
     data = request.FILES
     count = 1
-    print(list(data.items()))
+
     while True:
         img_name = data.get("img_name" + str(count))
         img_json = data.get("img_json" + str(count))
@@ -415,13 +427,14 @@ def batch_upload(request):
         img_json_name = "".join(str(time.time()).split(".")) + img_json.name
         xml_path = os.path.join(MEDIA_ROOT, des_file_base_path, img_json_name)
         save_file(img_json, xml_path)
-        image.img_name = "this is name"
+        image.img_name = "default_name"
         image.img_path = os.path.join(img_base_path, img_name_path)
         image.img_json = os.path.join(des_file_base_path, img_json_name)
         image.save()
         count += 1
         xml_queues.put({"id": image.id, "xml_path": xml_path})
-        utils.start_thread()
+        hbase_queuess.put({"id": image.id, "image_path": img_name})
+        utils.start_parse_xml_thread()
     return render(request, "common/batch_upload.html")
 
 
@@ -440,7 +453,6 @@ def filestream(filepath, chunk_size=512):
 def batch_download(request):
     data = request.GET
     if data.get("download"):
-        images = Image.objects.all()
         startdir = MEDIA_ROOT
         ret_file_name = "all" + '.zip'
         file_news = os.path.join(MEDIA_ROOT, ret_file_name)
@@ -463,8 +475,18 @@ def batch_download(request):
 def load_stations(request):
     resp = {"status": 1, "data": {"degrees": []}}
     try:
-        stations = ImageStation.objects.filter(site_status=1).order_by("-modify_time")
+        start_time = request.GET.get("start_time")
+        end_time = request.GET.get("end_time")
+        print(start_time, end_time)
+        stations = ImageStation.objects.filter(site_status=1)
+        if start_time:
+            stations = stations.filter(add_time__gte=start_time)
+        if end_time:
+            stations = stations.filter(add_time__lte=end_time)
+        stations = stations.order_by("-modify_time")
+        print(stations)
         for station in stations:
+            print(station.add_time)
             images = Image.objects.filter(station_id=station.id).order_by("-add_time")
             images_message = """"""
             for image in images:

@@ -43,7 +43,7 @@ class ParseXml(Thread):
                 with open(data["xml_path"], "r") as fp:
                     file_content = fp.read()
                     content = json.loads(file_content)
-                    print("content:{}".format(content))
+                    # print("content:{}".format(content))
                     station = content.get("station", {})
                     img_type = content.get("type", {})
                     site_name = station.get("site_name", "")
@@ -84,30 +84,39 @@ class ParseXml(Thread):
                 time.sleep(1)
 
 
-class UploadHdfsData(Thread):
+class UploadHbaseData(Thread):
     def __init__(self):
-        super(UploadHdfsData, self).__init__()
+        super(UploadHbaseData, self).__init__()
         self.exit_count = 0
 
     def run(self) -> None:
         while True:
             try:
-                if hdfs_queues.empty():
+                if hbase_queuess.empty():
                     time.sleep(0.5)
                     self.exit_count += 1
                     if self.exit_count >= 3:
                         break
+                data = hbase_queuess.get()
+                image_id = data.get("id", 0)
+                print("img_id:{}".format(image_id))
+                row_key = time.time()
 
+                res = Image.objects.filter(id=image_id).update(row_key=row_key)
+                print("res:{}".format(res))
             except:
                 print(traceback.format_exc())
                 time.sleep(1)
 
 
-def start_thread():
+def start_parse_xml_thread():
     for _ in range(1):
         parse = ParseXml()
         parse.start()
 
 
+
+
+
 if __name__ == '__main__':
-    start_thread()
+    start_parse_xml_thread()

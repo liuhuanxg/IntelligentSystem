@@ -125,8 +125,6 @@
     <div class="row" id="">
         <div id="cesiumContainer" class="fullSize"></div>
         <script>
-            /* 将经纬度对象集合存到数组中 */
-            let arr = [];
 
             /* 获取地图瓦片数据的url */
             var mapUrl = new Cesium.UrlTemplateImageryProvider({
@@ -200,11 +198,9 @@
                 }
             })
             function draw_point(degrees){
-                console.log("run here")
-
                 var images = "<p>这是描述信息，entity的description里面可以写一段html</p>\n" +
                     "                        <img width=\"450\" height=\"200\" src=\"{% static 'myadmin/章子怡.jfif' %}\"></img>\n                        <img width=\"450\" height=\"200\" src=\"{% static 'myadmin/章子怡.jfif' %}\"></img>\n                        <img width=\"450\" height=\"200\" src=\"{% static 'myadmin/章子怡.jfif' %}\"></img>"
-                console.log(degrees[0].images)
+
                 for (let i = 0; degrees.length > i; i++){
                     viewer.entities.add({
                     position: Cesium.Cartesian3.fromDegrees(degrees[i].longitude, degrees[i].latitude, 15000.0), // 指定位置的经纬度和高度，默认东经北纬为正数

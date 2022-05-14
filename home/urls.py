@@ -10,6 +10,7 @@ urlpatterns = [
     path('index/', index),
     # 加载地点坐标
     path('load_stations/', load_stations),
+    path('comprehensive_search/', comprehensive_search),
     path('register/', register, name="register"),
 
     path('login/', login, name="login"),
