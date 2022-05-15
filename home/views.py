@@ -122,7 +122,7 @@ def change_userinfo(request):
         phone = data.get("phone")
         email = data.get("email")
         address = data.get("address")
-        image = request.FILES.get("Image")
+        image = request.FILES.get("image")
         user.update(
             nick_name=nick_name if nick_name else F("nick_name"),
             gender=gender if gender else F("gender"),
@@ -130,7 +130,7 @@ def change_userinfo(request):
             email=email if email else F("email"),
             address=address if address else F("address")
         )
-        if Image:
+        if image:
             user = user[0]
             user.image = image
             user.save()
