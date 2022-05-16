@@ -200,10 +200,11 @@ def send_code(request):
 def image_message(request):
     type_name = request.GET.get("type_name", "")
     image_name = request.GET.get("image_name", "")
-    print(type_name, image_name)
-    if image_name or type_name:
-        image_list = Image.objects.filter(
-            Q(img_name__icontains=image_name) or Q(type__type_name__icontains=type_name), img_status=1).order_by("-id")
+    image_list = Image.objects.filter(img_status=1).order_by("-id")
+    if image_name:
+        image_list = image_list.filter(img_name__icontains=image_name)
+    if type_name:
+        image_list = image_list.filter(type__type_name__icontains=type_name)
     else:
         image_list = Image.objects.all().order_by("-id")
     print(image_list)

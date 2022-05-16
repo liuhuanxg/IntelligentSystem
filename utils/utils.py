@@ -28,18 +28,26 @@ class ParseXml(Thread):
                         break
                 """
                 {
-                    "img_name=100,
-                    "img_source=100,
-                    "img_length=100,
-                    "img_width=100,
-                    "img_height=100,
-                    "station=100,
-                    "type=100,
+                    "img_name": "imgname",
+                    "img_source": "其他",
+                    "img_length": 1000,
+                    "img_width": 800,
+                    "img_height": 3,
+                    "station": {
+                        "site_name": "上海",
+                        "site_description": "站点描述",
+                        "longitude": 100,
+                        "latitude": 200
+                    },
+                    "type": {
+                        "type_name": "日光",
+                        "type_description": "类型描述"
+                    }
                 }
                 """
                 data = xml_queues.get()
                 image_id = data.get("id", 0)
-                print("img_if:{}".format(image_id))
+                print("img_id:{}".format(image_id))
                 with open(data["xml_path"], "r") as fp:
                     file_content = fp.read()
                     content = json.loads(file_content)
