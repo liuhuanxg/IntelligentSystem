@@ -44,7 +44,7 @@ class ImageAdmin(admin.ModelAdmin):
     readonly_fields = ["hbase_row_key"]
     def operator(self, obj):
         return format_html(
-            '<a href="/batch_upload/">批量导入<a/>'
+            '<a href="/batch_upload/" target="_blank">批量导入<a/>'
         )
 
     operator.short_description = '批量导入'
