@@ -102,8 +102,12 @@
 
         <div class="form-group">
             <label class="col-md-3 control-label" for="inputFocus">头像</label>
+            
             <div class="col-md-6">
-                <input class="form-control" type="file" name="image">
+                <input class="form-control" type="file" name="image" required value="{{ user.image.url }}">
+            </div>
+            <div>
+                <img src="/static/{{ user.image.url }}" alt="" width="50px" height="40px">
             </div>
         </div>
         <div class="form-group">
