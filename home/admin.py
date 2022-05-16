@@ -38,7 +38,7 @@ class StationAdmin(admin.ModelAdmin):
 class ImageAdmin(admin.ModelAdmin):
     list_display = ["img_name", "img_length", "img_width", "img_height", "img_source", "station", "type", "operator"]
     actions = ['delete_selected']
-    search_fields = ["img_name", "make_published"]
+    search_fields = ["img_name"]
     list_per_page = 50
     list_filter = ["img_name"]
     readonly_fields = ["hbase_row_key"]
