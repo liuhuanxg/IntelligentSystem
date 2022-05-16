@@ -127,17 +127,13 @@ STATICFILES_DIRS = [
 # 用户上传文件的存储路径
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
-# https://www.likecs.com/show-249040.html
 # 配置邮箱
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# smtp服务的邮箱服务器，163邮箱
-EMAIL_HOST = 'smtp.qq.com'
-# smtp服务固定的端口
-EMAIL_PORT = 587  # 994
-# 发件人的邮箱
-EMAIL_HOST_USER = '1123762614@qq.com'
-EMAIL_HOST_PASSWORD = 'gmcfkuvlqmjifgcd'
-EMAIL_FROM = '1123762614@qq.com'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25  #994
+EMAIL_HOST_USER = '18737307883@163.com'
+EMAIL_HOST_PASSWORD = 'lh1111'
+EMAIL_FROM = '遥感数据服务平台'
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE=True  # 关闭浏览器cookie 失效
 
