@@ -15,7 +15,6 @@ import datetime
 from .admin import xml_queues, hbase_queuess
 from utils import utils, hbase_utils
 from threading import Thread
-import cv2.cv2 as cv
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
     img_base_path,
