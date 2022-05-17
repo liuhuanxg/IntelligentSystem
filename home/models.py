@@ -65,7 +65,7 @@ class Image(models.Model):
     img_source = models.CharField(verbose_name="图像来源", max_length=30, null=True, blank=True)
     img_length = models.CharField(verbose_name="图像长度", max_length=30, null=True, blank=True)
     img_width = models.CharField(verbose_name="图像宽度", max_length=30, null=True, blank=True)
-    img_height = models.CharField(verbose_name="图像高度", max_length=30, null=True)
+    img_height = models.CharField(verbose_name="图像高度", max_length=30, null=True, blank=True)
     img_status = models.BooleanField(verbose_name="图像状态", default=1)
     img_des = models.TextField(verbose_name="图像描述", null=True, blank=True)
     station = models.ForeignKey("ImageStation", on_delete=models.DO_NOTHING, verbose_name="图像站点", null=True)

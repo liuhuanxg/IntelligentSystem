@@ -12,6 +12,7 @@ from urllib.parse import quote, unquote
 from django.utils.html import format_html
 import traceback
 from utils.utils import xml_queues, hdfs_queues, hbase_queuess
+import PIL
 
 admin.site.site_header = '遥感数据服务平台管理后台'
 admin.site.site_title = '遥感数据服务平台管理后台'
@@ -55,11 +56,16 @@ class ImageAdmin(admin.ModelAdmin):
 
         static_path = os.path.join(BASE_DIR, "static")
         img_path = unquote(os.path.join(static_path, obj.img_path.url), "utf-8")
-        print("img_path:{}, name:{}".format(img_path, obj.img_path.name))
         img_json = unquote(os.path.join(static_path, obj.img_json.url))
         xml_queues.put({"id": obj.id, "xml_path": img_json})
-        row_key = "".join(str(time.time()).split("."))
+        if obj.img_path.path.endswith(".tif") or obj.img_path.path.name.endswith(".tiff"):
+            img = PIL.Image.open(obj.img_path)  # image.tiff from request.FILES
+            img.save(obj.img_path.path, "JPEG")
         if path.find("change") == -1:
+            row_key = "".join(str(time.time()).split("."))
+            obj.row_key = row_key
+            obj.save()
+            print("obj.row_key", obj.row_key, row_key)
             # hdfs_queues.put(img_path)
             # hdfs_queues.put(img_json)
             # hbase_queuess.put(img_path)

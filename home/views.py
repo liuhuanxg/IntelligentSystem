@@ -15,7 +15,7 @@ import datetime
 from .admin import xml_queues, hbase_queuess
 from utils import utils, hbase_utils
 from threading import Thread
-
+import cv2.cv2 as cv
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
     img_base_path,
@@ -403,9 +403,18 @@ def get_images_count(request):
     return JsonResponse(ret)
 
 
+import PIL
+
+
 # 保存图片
 def save_file(received_file, filename):
-    print("received_file:{},filename:{}".format(received_file, filename))
+    print("received_file.name:{}, filename:{}".format(received_file.name, filename))
+
+    if received_file.name.endswith(".tif") or received_file.name.endswith(".tiff"):
+        img = PIL.Image.open(received_file)  # image.tiff from request.FILES
+        img.save(filename, "JPEG")
+        return
+
     with open(filename, 'wb')as f:
         f.write(received_file.read())
 
@@ -421,9 +430,16 @@ def batch_upload(request):
 
         if not img_name or not img_json:
             break
+        # if img_name.name.endswith(".tif") or img_name.name.endswith(".tiff"):
+        #     real_img_name = img_name.name.split(".")[0] + ".jpg"
+        # else:
+        #     real_img_name = img_name.name
+        real_img_name = img_name.name
+        print("img_name.name:{},real_img_name:{}".format(img_name.name, real_img_name))
         image = Image()
-        img_name_path = "".join(str(time.time()).split(".")) + img_name.name
+        img_name_path = "".join(str(time.time()).split(".")) + real_img_name
         img_path = os.path.join(MEDIA_ROOT, img_base_path, img_name_path)
+        print("img_path:{}".format(img_path))
         save_file(img_name, img_path)
         img_json_name = "".join(str(time.time()).split(".")) + img_json.name
         xml_path = os.path.join(MEDIA_ROOT, des_file_base_path, img_json_name)
