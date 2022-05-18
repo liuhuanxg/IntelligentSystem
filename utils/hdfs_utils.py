@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from hdfs.client import Client
+import os
 
 try:
     from IntelligentSystem.settings import hdfs_host, hdfs_uname, hdfs_port
@@ -19,12 +20,16 @@ class HdfsWrapper():
         ret = self.client.upload('/input', file_path)
         print(ret)
 
-    def down_load(self, file_path):
-        ret = self.client.download('/input/{}'.format(file_path), file_path)
+    def down_load(self, file_name, file_path):
+        ret = self.client.download('/input/{}'.format(file_name), file_path)
         print(ret)
 
 
 if __name__ == '__main__':
+    pwd = os.path.abspath(".")
+    # print(pwd)
     wrapper = HdfsWrapper()
-    wrapper.upload_hdfs(
-        "/Users/liuhuan/workspace/PythonSpace/py3projects/IntelligentSystem/static/upload/img_des/1652185727713582test.json")
+    file_name = "test.txt"
+    # wrapper.upload_hdfs("utils/test.txt")
+    file_path = os.path.join(pwd, "tmp", file_name)
+    wrapper.down_load(file_name, file_path)

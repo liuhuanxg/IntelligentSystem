@@ -12,7 +12,7 @@ from string import ascii_letters, digits
 import random
 from django.db.models import Q, F
 import datetime
-from .admin import xml_queues, hbase_queuess
+from .admin import xml_queues, hbase_queuess, hdfs_queues
 from utils import utils, hbase_utils
 from threading import Thread
 from IntelligentSystem.settings import (
@@ -449,7 +449,9 @@ def batch_upload(request):
         image.save()
         count += 1
         xml_queues.put({"id": image.id, "xml_path": xml_path})
-        hbase_queuess.put({"id": image.id, "image_path": img_name})
+        hbase_queuess.put({"id": image.id, "file_path": img_name})
+        hdfs_queues.put({"id": image.id, "file_path": img_name})
+        hdfs_queues.put({"id": image.id, "file_path": img_json_name})
         utils.start_parse_xml_thread()
     return render(request, "common/batch_upload.html")
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 import time
 import json
 import traceback
@@ -7,6 +8,9 @@ from threading import Thread
 from IntelligentSystem.settings import BASE_DIR
 from queue import Queue
 from home.models import *
+from utils.hbase_utils import HbaseWrapper
+from utils.hdfs_utils import HdfsWrapper
+from IntelligentSystem.settings import hdfs_host, hdfs_uname, hdfs_port, thrift_port
 
 xml_queues = Queue()
 hdfs_queues = Queue()
@@ -47,8 +51,9 @@ class ParseXml(Thread):
                 """
                 data = xml_queues.get()
                 image_id = data.get("id", 0)
+                file_path = data.get("file_path", 0)
                 print("img_id:{}".format(image_id))
-                with open(data["xml_path"], "r") as fp:
+                with open(file_path, "r") as fp:
                     file_content = fp.read()
                     content = json.loads(file_content)
                     # print("content:{}".format(content))
@@ -107,11 +112,46 @@ class UploadHbaseData(Thread):
                         break
                 data = hbase_queuess.get()
                 image_id = data.get("id", 0)
-                print("img_id:{}".format(image_id))
+                file_path = data.get("file_path", "")
+                print("image_id:{},file_path:{}".format(image_id, file_path))
                 row_key = time.time()
-
+                images_table_name = "images"
+                chunck = open(file_path, "rb").read()
+                # picture是列族名，value是可以自定义的列名 同一个表中的不同数据都可以任意添加
+                attribs = {}
+                image_name = file_path.split(".")[-1]
+                attribs[b'picture:chunck'] = chunck
+                # #info是第二个列名 这个必须是str type
+                attribs[b'info:image_name'] = (row_key + image_name).encode("utf-8")
+                wrapper = HbaseWrapper()
+                ret = wrapper.save(images_table_name, row_key, attribs)
                 res = Image.objects.filter(id=image_id).update(row_key=row_key)
-                print("res:{}".format(res))
+                print("image save to hbase row_key:{}, image_id:{},ret:{},res:{}".format(row_key, image_id, ret, res))
+            except:
+                print(traceback.format_exc())
+                time.sleep(1)
+
+
+class UploadHdfsData(Thread):
+    def __init__(self):
+        super(UploadHdfsData, self).__init__()
+        self.exit_count = 0
+
+    def run(self) -> None:
+        while True:
+            try:
+                if hdfs_queues.empty():
+                    time.sleep(0.5)
+                    self.exit_count += 1
+                    if self.exit_count >= 3:
+                        break
+                data = hdfs_queues.get()
+                image_id = data.get("id", 0)
+                file_path = data.get("file_path", "")
+                print("image_id:{},file_path:{}".format(image_id, file_path))
+                wrapper = HdfsWrapper()
+                ret = wrapper.upload_hdfs(file_path)
+                print("image save to hdfs ret:{}".format(ret))
             except:
                 print(traceback.format_exc())
                 time.sleep(1)
@@ -123,7 +163,15 @@ def start_parse_xml_thread():
         parse.start()
 
 
-
+def start_other_thread(thread_name, number=1):
+    for _ in range(number):
+        if thread_name == "hdfs":
+            t = UploadHdfsData()
+        elif thread_name == "hbase":
+            t = UploadHdfsData()
+        elif thread_name == "parse_file":
+            t = ParseXml()
+        t.start()
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@
 import happybase
 import time
 import traceback
+import os
 
 try:
     from IntelligentSystem.settings import thrift_port, hdfs_host
@@ -75,7 +76,7 @@ if __name__ == '__main__':
     # print(res)
 
     row_key = "".join(str(time.time()).split("."))
-    print(row_key)
+    print("row_key:{}".format(row_key))
     # ret = wrapper.save(
     #     table_name, row_key,
     #     {b'cf1:col1': b'value1', b'cf2:col2': b'value2'}
@@ -86,17 +87,26 @@ if __name__ == '__main__':
     #     'info': dict(max_versions=1, block_cache_enabled=False),
     # }
     images_table_name = "images"
+    # 1、创建数据表
     # res = wrapper.create_table(images_table_name, colums)
+    # 2、查看数据表列表
     # ret = wrapper.get_table_list()
-    # chunck = open("../static/upload/image/1652185565920823D960620-D398-4D9E-AB30-ED9C39BAFF42.jpeg", "rb").read()
-    #
-    # # picture是列族名，value是可以自定义的列名 同一个表中的不同数据都可以任意添加
-    # attribs = {}
-    # image_name = "1652185565920823D960620-D398-4D9E-AB30-ED9C39BAFF42.jpeg"
-    # attribs[b'picture:chunck'] = chunck
-    # # #info是第二个列名 这个必须是str type
-    # attribs[b'info:image_name'] = image_name.encode("utf-8")
-    # ret = wrapper.save(images_table_name, row_key, attribs)
+
+    file_path = os.path.join(os.path.abspath("."), "utils/39_2.tif")
+    chunck = open(file_path, "rb").read()
+
+    # picture是列族名，value是可以自定义的列名 同一个表中的不同数据都可以任意添加
+    attribs = {}
+    image_name = "39_2.tif"
+    attribs[b'picture:chunck'] = chunck
+    file_type = image_name.split(".")[-1]
+    # #info是第二个列名 这个必须是str type
+    attribs[b'info:image_name'] = (row_key + file_type).encode("utf-8")
+    ret = wrapper.save(images_table_name, row_key, attribs)
 
     # print(res)
-    print(wrapper.load_data(table_name, "1652532346762613"))
+    ret = wrapper.load_data(images_table_name, row_key)
+    print(type(ret))
+    print(ret.keys())
+    with open(row_key + image_name, "wb") as fp:
+        fp.write(ret[b"picture:chunck"])
