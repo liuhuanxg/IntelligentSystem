@@ -5,12 +5,11 @@ import time
 import json
 import traceback
 from threading import Thread
-from IntelligentSystem.settings import BASE_DIR
 from queue import Queue
 from home.models import *
 from utils.hbase_utils import HbaseWrapper
 from utils.hdfs_utils import HdfsWrapper
-from IntelligentSystem.settings import hdfs_host, hdfs_uname, hdfs_port, thrift_port
+import PIL
 
 xml_queues = Queue()
 hdfs_queues = Queue()
@@ -34,9 +33,7 @@ class ParseXml(Thread):
                 {
                     "img_name": "imgname",
                     "img_source": "其他",
-                    "img_length": 1000,
-                    "img_width": 800,
-                    "img_height": 3,
+                    "file_size": 100kb,
                     "station": {
                         "site_name": "上海",
                         "site_description": "站点描述",
@@ -52,7 +49,7 @@ class ParseXml(Thread):
                 data = xml_queues.get()
                 image_id = data.get("id", 0)
                 file_path = data.get("file_path", 0)
-                print("img_id:{}".format(image_id))
+                print("img_id:{},file_path:{}".format(image_id, file_path))
                 with open(file_path, "r") as fp:
                     file_content = fp.read()
                     content = json.loads(file_content)
@@ -61,6 +58,7 @@ class ParseXml(Thread):
                     img_type = content.get("type", {})
                     site_name = station.get("site_name", "")
                     type_name = img_type.get("type_name", "")
+                    print(site_name, type_name)
                     site = ImageStation.objects.filter(site_name=site_name)
                     if site.exists():
                         station_id = site[0].id
@@ -84,12 +82,10 @@ class ParseXml(Thread):
                     res = Image.objects.filter(id=image_id).update(
                         img_name=content.get("img_name", ""),
                         img_source=content.get("img_source", ""),
-                        img_length=content.get("img_length", ""),
-                        img_width=content.get("img_width", ""),
-                        img_height=content.get("img_height", ""),
+                        img_status=1 if content.get("img_status", True) else 0,
                         station=station_id,
                         type=type_id,
-                        img_des=file_content
+                        img_des=file_content,
                     )
                     print("res:{}".format(res))
             except:
@@ -113,8 +109,7 @@ class UploadHbaseData(Thread):
                 data = hbase_queuess.get()
                 image_id = data.get("id", 0)
                 file_path = data.get("file_path", "")
-                print("image_id:{},file_path:{}".format(image_id, file_path))
-                row_key = time.time()
+                row_key = "".join(str(time.time()).split("."))
                 images_table_name = "images"
                 chunck = open(file_path, "rb").read()
                 # picture是列族名，value是可以自定义的列名 同一个表中的不同数据都可以任意添加
@@ -122,14 +117,32 @@ class UploadHbaseData(Thread):
                 image_name = file_path.split(".")[-1]
                 attribs[b'picture:chunck'] = chunck
                 # #info是第二个列名 这个必须是str type
-                attribs[b'info:image_name'] = (row_key + image_name).encode("utf-8")
+                attribs[b'info:image_name'] = (str(row_key) + image_name).encode("utf-8")
                 wrapper = HbaseWrapper()
                 ret = wrapper.save(images_table_name, row_key, attribs)
-                res = Image.objects.filter(id=image_id).update(row_key=row_key)
+                res = Image.objects.filter(id=image_id).update(
+                    hbase_row_key=row_key,
+                    file_size=filesize(os.path.getsize(file_path)),
+                )
                 print("image save to hbase row_key:{}, image_id:{},ret:{},res:{}".format(row_key, image_id, ret, res))
             except:
                 print(traceback.format_exc())
                 time.sleep(1)
+
+
+def filesize(value):
+    x = value
+    y = 512000
+    if x < y:
+        value = round(x / 1024, 2)
+        ext = ' KB'
+    elif x < y * 1024:
+        value = round(x / (1024 * 1024), 2)
+        ext = ' MB'
+    else:
+        value = round(x / (1024 * 1024 * 1024), 2)
+        ext = ' GB'
+    return str(value) + ext
 
 
 class UploadHdfsData(Thread):
@@ -168,8 +181,8 @@ def start_other_thread(thread_name, number=1):
         if thread_name == "hdfs":
             t = UploadHdfsData()
         elif thread_name == "hbase":
-            t = UploadHdfsData()
-        elif thread_name == "parse_file":
+            t = UploadHbaseData()
+        else:
             t = ParseXml()
         t.start()
 

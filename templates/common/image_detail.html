@@ -49,12 +49,12 @@
                 <table class="table mb-none table-bordered">
                     <tbody>
                         <tr>
-                            <td width="100px">图片名称：</td>
+                            <td>图片名称：</td>
                             <td>{{ image.img_name }}</td>
                         </tr>
                         <tr>
                             <td>图片详情：</td>
-                            <td><img src="/static/{{ image.img_path }}" alt="" width="500px" height="300px"></td>
+                            <td><img src="/media/{{ image.img_path }}" alt="" width="500px" height="300px"></td>
                         </tr>
                         <tr>
                             <td>图像json：</td>
@@ -66,17 +66,13 @@
                         </tr>
 
                         <tr>
-                            <td>图像长度：</td>
-                            <td>{{ image.img_length }}</td>
+                            <td>图像大小：</td>
+                            <td>{{ image.file_size }}</td>
                         </tr>
 
                         <tr>
-                            <td>图像宽度：</td>
-                            <td>{{ image.img_width }}</td>
-                        </tr>
-                        <tr>
-                            <td>图像高度：</td>
-                            <td>{{ image.img_height }}</td>
+                            <td>分辨率：</td>
+                            <td>{{ image.img_width }}x{{ image.img_height }}</td>
                         </tr>
                         <tr>
                             <td>图像描述：</td>

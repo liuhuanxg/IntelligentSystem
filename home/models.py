@@ -1,5 +1,5 @@
 from django.db import models
-from IntelligentSystem.settings import des_file_base_path, img_base_path
+from utils.date_utils import upload_path_handler
 
 
 # 用户数据表
@@ -60,16 +60,17 @@ class Image(models.Model):
         verbose_name_plural = "图片"
 
     img_name = models.CharField("图片名称", max_length=100)
-    img_path = models.ImageField(upload_to=img_base_path, verbose_name="图片路径")
-    img_json = models.FileField(upload_to=des_file_base_path, verbose_name="图像json")
+    img_path = models.ImageField(upload_to=upload_path_handler(), verbose_name="图片路径", width_field="img_width",
+                                 height_field="img_height")
+    img_json = models.FileField(upload_to=upload_path_handler("des_file"), verbose_name="图像json")
     img_source = models.CharField(verbose_name="图像来源", max_length=30, null=True, blank=True)
-    img_length = models.CharField(verbose_name="图像长度", max_length=30, null=True, blank=True)
+    file_size = models.CharField(verbose_name="图片大小", max_length=30, null=True, blank=True)
     img_width = models.CharField(verbose_name="图像宽度", max_length=30, null=True, blank=True)
     img_height = models.CharField(verbose_name="图像高度", max_length=30, null=True, blank=True)
     img_status = models.BooleanField(verbose_name="图像状态", default=1)
     img_des = models.TextField(verbose_name="图像描述", null=True, blank=True)
-    station = models.ForeignKey("ImageStation", on_delete=models.DO_NOTHING, verbose_name="图像站点", null=True)
-    type = models.ForeignKey("ImageType", on_delete=models.DO_NOTHING, verbose_name="图像类型", null=True)
+    station = models.ForeignKey("ImageStation", on_delete=models.DO_NOTHING, verbose_name="图像站点", null=True, blank=True)
+    type = models.ForeignKey("ImageType", on_delete=models.DO_NOTHING, verbose_name="图像类型", null=True, blank=True)
     add_time = models.DateTimeField(verbose_name="创建时间", auto_now=True)
     modify_time = models.DateTimeField(verbose_name="修改时间", auto_now=True)
     hbase_row_key = models.CharField(verbose_name="hbase中的row_key", default="", max_length=100)

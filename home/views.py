@@ -13,12 +13,14 @@ import random
 from django.db.models import Q, F
 import datetime
 from .admin import xml_queues, hbase_queuess, hdfs_queues
-from utils import utils, hbase_utils
+from utils import utils, hbase_utils, hdfs_utils
 from threading import Thread
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
     img_base_path,
-    des_file_base_path
+    des_file_base_path,
+    TMP_PATH,
+    images_table_name
 )
 
 
@@ -429,16 +431,11 @@ def batch_upload(request):
 
         if not img_name or not img_json:
             break
-        # if img_name.name.endswith(".tif") or img_name.name.endswith(".tiff"):
-        #     real_img_name = img_name.name.split(".")[0] + ".jpg"
-        # else:
-        #     real_img_name = img_name.name
+
         real_img_name = img_name.name
-        print("img_name.name:{},real_img_name:{}".format(img_name.name, real_img_name))
         image = Image()
         img_name_path = "".join(str(time.time()).split(".")) + real_img_name
         img_path = os.path.join(MEDIA_ROOT, img_base_path, img_name_path)
-        print("img_path:{}".format(img_path))
         save_file(img_name, img_path)
         img_json_name = "".join(str(time.time()).split(".")) + img_json.name
         xml_path = os.path.join(MEDIA_ROOT, des_file_base_path, img_json_name)
@@ -452,7 +449,9 @@ def batch_upload(request):
         hbase_queuess.put({"id": image.id, "file_path": img_name})
         hdfs_queues.put({"id": image.id, "file_path": img_name})
         hdfs_queues.put({"id": image.id, "file_path": img_json_name})
-        utils.start_parse_xml_thread()
+        utils.start_other_thread("parse_file", 1)
+        utils.start_other_thread("hbase", 1)
+        utils.start_other_thread("hdfs", 1)
     return render(request, "common/batch_upload.html")
 
 
@@ -471,9 +470,42 @@ def filestream(filepath, chunk_size=512):
 def batch_download(request):
     data = request.GET
     if data.get("download"):
-        startdir = MEDIA_ROOT
+
+        images = Image.objects.all()
+        hbase_wrapper = hbase_utils.HbaseWrapper()
+        hdfs_wrapper = hdfs_utils.HdfsWrapper()
+        user_id = request.session.get("user_id")
+        tmp_path = os.path.join(TMP_PATH, "_", str(user_id))
+        os.system("rm -rf {}".format(tmp_path))
+        if not os.path.exists(tmp_path):
+            os.makedirs(tmp_path)
+        for image in images:
+            # 加载hbase中的图片
+            img_path = image.img_path
+            img_json = image.img_json
+            full_img_name = img_path.split("/")
+            full_json_name = img_json.split("/")
+            image_name = full_img_name[-1]
+            json_name = full_json_name[-1]
+            img_tmp_save_path = os.path.join(tmp_path, *full_img_name[:-1])
+            json_tmp_save_path = os.path.join(tmp_path, *full_json_name[:-1])
+            print("img_tmp_save_path:{}".format(img_tmp_save_path))
+            print("json_tmp_save_path:{}".format(json_tmp_save_path))
+            if not os.path.exists(img_tmp_save_path):
+                os.makedirs(img_tmp_save_path)
+            if not os.path.exists(img_tmp_save_path):
+                os.makedirs(img_tmp_save_path)
+            hbase_row_key = image.hbase_row_key
+            ret = hbase_wrapper.load_data(images_table_name, hbase_row_key)
+            with open(os.path.join(img_tmp_save_path, image_name), "wb") as fp:
+                fp.write(ret[b"picture:chunck"])
+
+            # 加载hdfs中的json文件
+            hdfs_wrapper.down_load(json_name, json_tmp_save_path)
+
+        startdir = TMP_PATH
         ret_file_name = "all" + '.zip'
-        file_news = os.path.join(MEDIA_ROOT, ret_file_name)
+        file_news = os.path.join(startdir, ret_file_name)
         z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
         paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, des_file_base_path)]
         for path in paths:
@@ -502,7 +534,6 @@ def load_stations(request):
         if end_time:
             stations = stations.filter(add_time__lte=end_time)
         stations = stations.order_by("-modify_time")
-        print(stations)
         for station in stations:
             print(station.add_time)
             images = Image.objects.filter(station_id=station.id).order_by("-add_time")

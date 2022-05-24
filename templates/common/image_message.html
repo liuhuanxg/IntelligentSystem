@@ -84,9 +84,8 @@
                     <tr>
                         <th>图片名</th>
                         <th>图像来源</th>
-                        <th>图像长度</th>
-                        <th>图像宽度</th>
-                        <th>图像高度</th>
+                        <th>图像大小</th>
+                        <th>分辨率</th>
                         <th>创建时间</th>
                         <th>所属类别</th>
                         <th>所属站点</th>
@@ -98,9 +97,8 @@
                     <tr>
                         <td><a href="{% url 'home:image_detail' image.id %}" class="btn btn-primary btn-sm">{{ image.img_name }}</a></td>
                         <td>{{ image.img_source }}</td>
-                        <td>{{ image.img_length }}</td>
-                        <td>{{ image.img_width }}</td>
-                        <td>{{ image.img_height }}</td>
+                        <td>{{ image.file_size }}</td>
+                        <td>{{ image.img_width }}x{{ image.img_height }}</td>
                         <td>{{ image.add_time }}</td>
                         <td>{{ image.type }}</td>
                         <td>{{ image.station }}</td>

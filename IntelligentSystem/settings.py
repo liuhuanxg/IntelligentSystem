@@ -125,7 +125,9 @@ STATICFILES_DIRS = [
 ]
 
 # 用户上传文件的存储路径
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+TMP_PATH = os.path.join(BASE_DIR, 'tmp')
 
 # 配置邮箱
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -150,3 +152,9 @@ thrift_port = 9095
 
 img_base_path = "upload/image"
 des_file_base_path = "upload/img_des"
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_ANALYSIS = False
+
+images_table_name = "images"
