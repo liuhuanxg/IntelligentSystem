@@ -1,0 +1,15 @@
+{
+    "img_name": "img_name",
+    "img_source": "其他",
+    "img_status": true,
+    "station": {
+        "site_name": "上海",
+        "site_description": "站点描述",
+        "longitude": 100,
+        "latitude": 200
+    },
+    "type": {
+        "type_name": "日光",
+        "type_description": "类型描述"
+    }
+}

@@ -48,7 +48,7 @@
 					<div id="userbox" class="userbox">
 						<a href="#" data-toggle="dropdown">
 							<figure class="profile-picture">
-								<img src="/static/{{ request.session.image }}" alt="{{ request.session.username }}" class="img-circle" data-lock-picture="/static/assets/images/!logged-user.jpg" />
+								<img src="/{{ request.session.image }}" alt="{{ request.session.username }}" class="img-circle" data-lock-picture="/static/assets/images/!logged-user.jpg" />
 							</figure>
 							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@JSOFT.com">
 								<span class="name">{{ request.session.username }}</span>

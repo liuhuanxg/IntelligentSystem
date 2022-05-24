@@ -11,7 +11,7 @@ hdfs_uname = "root"
 class HdfsWrapper():
     def __init__(self):
         self.client = Client("{}:{}".format(hdfs_host, hdfs_port), root=hdfs_uname, timeout=10)
-        self.input_base_path = "/input/file/"
+        self.input_base_path = "/input"
 
     def upload_hdfs(self, file_path):
         print("upload_hdfs file_path:{}".format(file_path))

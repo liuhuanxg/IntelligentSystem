@@ -20,7 +20,8 @@ from IntelligentSystem.settings import (
     img_base_path,
     des_file_base_path,
     TMP_PATH,
-    images_table_name
+    images_table_name,
+
 )
 
 
@@ -434,24 +435,34 @@ def batch_upload(request):
 
         real_img_name = img_name.name
         image = Image()
+        # 真正存储的文件名称
         img_name_path = "".join(str(time.time()).split(".")) + real_img_name
-        img_path = os.path.join(MEDIA_ROOT, img_base_path, img_name_path)
+        today_img_path = os.path.join(MEDIA_ROOT, upload_path_handler("img"))
+        today_json_path = os.path.join(MEDIA_ROOT, upload_path_handler("des"))
+        if not os.path.exists(today_img_path):
+            os.makedirs(today_img_path)
+        if not os.path.exists(today_json_path):
+            os.makedirs(today_json_path)
+        print("today_img_path:{}".format(today_img_path))
+        print("today_json_path:{}".format(today_json_path))
+        img_path = os.path.join(today_img_path, img_name_path)
         save_file(img_name, img_path)
         img_json_name = "".join(str(time.time()).split(".")) + img_json.name
-        xml_path = os.path.join(MEDIA_ROOT, des_file_base_path, img_json_name)
+        xml_path = os.path.join(today_json_path, img_json_name)
         save_file(img_json, xml_path)
         image.img_name = "default_name"
-        image.img_path = os.path.join(img_base_path, img_name_path)
-        image.img_json = os.path.join(des_file_base_path, img_json_name)
+        image.img_path = os.path.join(upload_path_handler("img"), img_name_path)
+        image.img_json = os.path.join(upload_path_handler("des"), img_json_name)
         image.save()
         count += 1
-        xml_queues.put({"id": image.id, "xml_path": xml_path})
-        hbase_queuess.put({"id": image.id, "file_path": img_name})
-        hdfs_queues.put({"id": image.id, "file_path": img_name})
-        hdfs_queues.put({"id": image.id, "file_path": img_json_name})
+        xml_queues.put({"id": image.id, "file_path": xml_path})
+        hbase_queuess.put({"id": image.id, "file_path": img_path})
+        hdfs_queues.put({"id": image.id, "file_path": img_path})
+        hdfs_queues.put({"id": image.id, "file_path": xml_path})
         utils.start_other_thread("parse_file", 1)
         utils.start_other_thread("hbase", 1)
         utils.start_other_thread("hdfs", 1)
+        return HttpResponseRedirect("/batch_upload")
     return render(request, "common/batch_upload.html")
 
 
@@ -475,39 +486,37 @@ def batch_download(request):
         hbase_wrapper = hbase_utils.HbaseWrapper()
         hdfs_wrapper = hdfs_utils.HdfsWrapper()
         user_id = request.session.get("user_id")
-        tmp_path = os.path.join(TMP_PATH, "_", str(user_id))
+        tmp_path = os.path.join(TMP_PATH, str(user_id))
         os.system("rm -rf {}".format(tmp_path))
         if not os.path.exists(tmp_path):
             os.makedirs(tmp_path)
         for image in images:
             # 加载hbase中的图片
-            img_path = image.img_path
-            img_json = image.img_json
+            img_path = image.img_path.path
+            img_json = image.img_json.path
             full_img_name = img_path.split("/")
             full_json_name = img_json.split("/")
             image_name = full_img_name[-1]
             json_name = full_json_name[-1]
-            img_tmp_save_path = os.path.join(tmp_path, *full_img_name[:-1])
-            json_tmp_save_path = os.path.join(tmp_path, *full_json_name[:-1])
-            print("img_tmp_save_path:{}".format(img_tmp_save_path))
-            print("json_tmp_save_path:{}".format(json_tmp_save_path))
-            if not os.path.exists(img_tmp_save_path):
-                os.makedirs(img_tmp_save_path)
-            if not os.path.exists(img_tmp_save_path):
-                os.makedirs(img_tmp_save_path)
+            if not os.path.exists(tmp_path):
+                os.makedirs(tmp_path)
+
             hbase_row_key = image.hbase_row_key
             ret = hbase_wrapper.load_data(images_table_name, hbase_row_key)
-            with open(os.path.join(img_tmp_save_path, image_name), "wb") as fp:
-                fp.write(ret[b"picture:chunck"])
+            if ret:
+                with open(os.path.join(tmp_path, image_name), "wb") as fp:
+                    fp.write(ret[b"picture:chunck"])
 
             # 加载hdfs中的json文件
-            hdfs_wrapper.down_load(json_name, json_tmp_save_path)
+            hdfs_wrapper.down_load(json_name, tmp_path)
 
         startdir = TMP_PATH
-        ret_file_name = "all" + '.zip'
+        ret_file_name = os.path.join(TMP_PATH, "all_{}".format(user_id) + '.zip')
+        if os.path.exists(ret_file_name):
+            os.system("rm -rf {}".format(ret_file_name))
         file_news = os.path.join(startdir, ret_file_name)
         z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
-        paths = [os.path.join(startdir, img_base_path), os.path.join(startdir, des_file_base_path)]
+        paths = [tmp_path]
         for path in paths:
             for dirpath, dirnames, filenames in os.walk(path):
                 fpath = dirpath.replace(startdir, '')
@@ -553,3 +562,4 @@ def load_stations(request):
         resp["status"] = 0
         print(traceback.format_exc())
     return JsonResponse(resp)
+

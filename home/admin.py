@@ -24,7 +24,7 @@ class TypeAdmin(admin.ModelAdmin):
     list_display = ["type_name", "type_status", "add_time", "modify_time"]
     search_fields = ["type_name", "type_status"]
     list_per_page = 30
-
+    date_hierarchy = "modify_time"
 
 # 站点管理
 @admin.register(ImageStation)
@@ -32,17 +32,19 @@ class StationAdmin(admin.ModelAdmin):
     list_display = ["site_name", "site_status", "add_time", "modify_time"]
     search_fields = ["site_name"]
     list_per_page = 50
+    date_hierarchy = "modify_time"
 
 
 # 图片管理
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ["img_name", "file_size", "img_width", "img_height", "img_source", "station", "type", "operator"]
+    list_display = ["img_name", "file_size", "img_source", "station", "type", "modify_time","operator"]
     actions = ['delete_selected']
     search_fields = ["img_name"]
     list_per_page = 50
-    list_filter = ["img_name"]
+    list_filter = ["type", "station"]
     readonly_fields = ["hbase_row_key"]
+    date_hierarchy = "modify_time"
 
     def operator(self, obj):
         return format_html(
@@ -72,3 +74,4 @@ class ImageAdmin(admin.ModelAdmin):
             hdfs_queues.put({"id": obj.id, "file_path": obj.img_json.path})
             start_other_thread("hdfs", 1)
             print("obj.img_json.path:{}".format(obj.img_json.path))
+
