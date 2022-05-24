@@ -5,6 +5,7 @@ __pycache__/
 migrations
 static/upload
 static/Cesium/
+static/admin/
 static/Rectangle/
 logs
 *.zip
