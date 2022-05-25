@@ -9,3 +9,5 @@ static/admin/
 static/Rectangle/
 logs
 *.zip
+media/
+tmp/
