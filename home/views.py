@@ -423,45 +423,45 @@ def save_file(received_file, filename):
 
 # 批量上传
 def batch_upload(request):
-    data = request.FILES
-    count = 1
+    if request.method == "POST":
+        data = request.FILES
+        count = 1
+        while True:
+            img_name = data.get("img_name" + str(count))
+            img_json = data.get("img_json" + str(count))
 
-    while True:
-        img_name = data.get("img_name" + str(count))
-        img_json = data.get("img_json" + str(count))
+            if not img_name or not img_json:
+                break
 
-        if not img_name or not img_json:
-            break
-
-        real_img_name = img_name.name
-        image = Image()
-        # 真正存储的文件名称
-        img_name_path = "".join(str(time.time()).split(".")) + real_img_name
-        today_img_path = os.path.join(MEDIA_ROOT, upload_path_handler("img"))
-        today_json_path = os.path.join(MEDIA_ROOT, upload_path_handler("des"))
-        if not os.path.exists(today_img_path):
-            os.makedirs(today_img_path)
-        if not os.path.exists(today_json_path):
-            os.makedirs(today_json_path)
-        print("today_img_path:{}".format(today_img_path))
-        print("today_json_path:{}".format(today_json_path))
-        img_path = os.path.join(today_img_path, img_name_path)
-        save_file(img_name, img_path)
-        img_json_name = "".join(str(time.time()).split(".")) + img_json.name
-        xml_path = os.path.join(today_json_path, img_json_name)
-        save_file(img_json, xml_path)
-        image.img_name = "default_name"
-        image.img_path = os.path.join(upload_path_handler("img"), img_name_path)
-        image.img_json = os.path.join(upload_path_handler("des"), img_json_name)
-        image.save()
-        count += 1
-        xml_queues.put({"id": image.id, "file_path": xml_path})
-        hbase_queuess.put({"id": image.id, "file_path": img_path})
-        hdfs_queues.put({"id": image.id, "file_path": img_path})
-        hdfs_queues.put({"id": image.id, "file_path": xml_path})
-        utils.start_other_thread("parse_file", 1)
-        utils.start_other_thread("hbase", 1)
-        utils.start_other_thread("hdfs", 1)
+            real_img_name = img_name.name
+            image = Image()
+            # 真正存储的文件名称
+            img_name_path = "".join(str(time.time()).split(".")) + real_img_name
+            today_img_path = os.path.join(MEDIA_ROOT, upload_path_handler("img"))
+            today_json_path = os.path.join(MEDIA_ROOT, upload_path_handler("des"))
+            if not os.path.exists(today_img_path):
+                os.makedirs(today_img_path)
+            if not os.path.exists(today_json_path):
+                os.makedirs(today_json_path)
+            print("today_img_path:{}".format(today_img_path))
+            print("today_json_path:{}".format(today_json_path))
+            img_path = os.path.join(today_img_path, img_name_path)
+            save_file(img_name, img_path)
+            img_json_name = "".join(str(time.time()).split(".")) + img_json.name
+            xml_path = os.path.join(today_json_path, img_json_name)
+            save_file(img_json, xml_path)
+            image.img_name = "default_name"
+            image.img_path = os.path.join(upload_path_handler("img"), img_name_path)
+            image.img_json = os.path.join(upload_path_handler("des"), img_json_name)
+            image.save()
+            count += 1
+            xml_queues.put({"id": image.id, "file_path": xml_path})
+            hbase_queuess.put({"id": image.id, "file_path": img_path})
+            hdfs_queues.put({"id": image.id, "file_path": img_path})
+            hdfs_queues.put({"id": image.id, "file_path": xml_path})
+            utils.start_other_thread("parse_file", 1)
+            utils.start_other_thread("hbase", 1)
+            utils.start_other_thread("hdfs", 1)
         return HttpResponseRedirect("/batch_upload")
     return render(request, "common/batch_upload.html")
 
@@ -562,4 +562,3 @@ def load_stations(request):
         resp["status"] = 0
         print(traceback.format_exc())
     return JsonResponse(resp)
-
