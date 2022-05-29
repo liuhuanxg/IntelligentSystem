@@ -1,28 +1,27 @@
+import datetime
 import os
-import zipfile
+import random
 import time
 import traceback
-from django.shortcuts import render, redirect
-from django.http import JsonResponse, StreamingHttpResponse
-from .models import *
-from django.shortcuts import HttpResponseRedirect
-from home.forms import UserForm
-from IntelligentSystem.common import setPassword, loginValid, send_email, set_page
+import zipfile
 from string import ascii_letters, digits
-import random
-from django.db.models import Q, F
-import datetime
-from .admin import xml_queues, hbase_queuess, hdfs_queues
-from utils import utils, hbase_utils, hdfs_utils
-from threading import Thread
+
+from django.db.models import F
+from django.http import JsonResponse, StreamingHttpResponse
+from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import render, redirect
+
+from IntelligentSystem.common import setPassword, loginValid, send_email, set_page
 from IntelligentSystem.settings import (
     MEDIA_ROOT,
-    img_base_path,
-    des_file_base_path,
     TMP_PATH,
     images_table_name,
 
 )
+from home.forms import UserForm
+from utils import utils, hbase_utils, hdfs_utils
+from .admin import xml_queues, hbase_queuess, hdfs_queues
+from .models import *
 
 
 @loginValid
@@ -537,27 +536,32 @@ def load_stations(request):
         start_time = request.GET.get("start_time")
         end_time = request.GET.get("end_time")
         print(start_time, end_time)
-        stations = ImageStation.objects.filter(site_status=1)
+        images = Image.objects.filter(img_status=1)
         if start_time:
-            stations = stations.filter(add_time__gte=start_time)
+            images = images.filter(add_time__gte=start_time)
         if end_time:
-            stations = stations.filter(add_time__lte=end_time)
-        stations = stations.order_by("-modify_time")
-        for station in stations:
-            print(station.add_time)
-            images = Image.objects.filter(station_id=station.id).order_by("-add_time")
-            images_message = """"""
-            for image in images:
-                images_message += """
+            images = images.filter(add_time__lte=end_time)
+        images = images.order_by("-modify_time")
+        degrees = {}
+        for image in images:
+            image_message = """
                 <p>图像名称：{}；上传时间：{}</p>\n
-                <img width=\"450\" height=\"200\" src=\"/static/{}\"></img>\n  
+                <img width=\"450\" height=\"200\" src=\"/{}\"></img>\n  
                 """.format(image.img_name, image.add_time, image.img_path.url)
-            resp["data"]["degrees"].append({
-                "latitude": station.latitude,
-                "longitude": station.longitude,
-                "name": station.site_name,
-                "images": images_message
-            })
+
+            if image.station.site_name not in degrees:
+                degrees[image.station.site_name] = {
+                    "latitude": image.station.latitude,
+                    "longitude": image.station.longitude,
+                    "name": image.station.site_name,
+                    "images": image_message
+                }
+            else:
+                degrees[image.station.site_name]["images"] = degrees[image.station.site_name].get("images","""""") + image_message
+
+            for _k ,value in degrees.items():
+                resp["data"]["degrees"].append(value)
+
     except:
         resp["status"] = 0
         print(traceback.format_exc())
